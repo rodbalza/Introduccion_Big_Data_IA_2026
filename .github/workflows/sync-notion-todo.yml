@@ -1,0 +1,99 @@
+name: Sync Notion - Todo
+
+on:
+  workflow_dispatch:
+    inputs:
+      publicar:
+        description: "Publicar Clases, Laboratorios y Calendario (desmarcado = previsualizacion)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-notion-todo
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      NOTION_CLASES_ID: ${{ vars.NOTION_CLASES_ID }}
+      NOTION_LABS_ID: ${{ vars.NOTION_LABS_ID }}
+      NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
+      PUBLICAR: ${{ inputs.publicar }}
+
+    steps:
+      - name: Obtener repositorio
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: python -m pip install "requests>=2.32,<3"
+
+      - name: Verificar configuracion
+        shell: bash
+        run: |
+          test -n "$NOTION_TOKEN" || { echo "::error::Falta NOTION_TOKEN"; exit 1; }
+          for variable in NOTION_CLASES_ID NOTION_LABS_ID NOTION_CALENDARIO_ID; do
+            test -n "${!variable}" || { echo "::error::Falta $variable"; exit 1; }
+          done
+          echo "Configuración encontrada. Modo: $([ "$PUBLICAR" = "true" ] && echo PUBLICACION || echo PREVISUALIZACION)"
+
+      - name: Sincronizar Clases
+        shell: bash
+        run: |
+          if [ "$PUBLICAR" = "true" ]; then
+            python sync/export_clases.py --publish
+          else
+            python sync/export_clases.py
+          fi
+
+      - name: Sincronizar Laboratorios
+        shell: bash
+        run: |
+          if [ "$PUBLICAR" = "true" ]; then
+            python sync/export_labs.py --publish
+          else
+            python sync/export_labs.py
+          fi
+
+      - name: Sincronizar Calendario
+        shell: bash
+        run: |
+          if [ "$PUBLICAR" = "true" ]; then
+            python sync/export_calendario.py --publish
+          else
+            python sync/export_calendario.py
+          fi
+
+      - name: Publicar los cambios en un solo commit
+        if: ${{ inputs.publicar }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # -A incluye archivos nuevos, actualizados y eliminados en estas secciones.
+          git add -A -- clases/ laboratorios/ calendario/ \
+            .notion-clases-state.json \
+            .notion-labs-state.json \
+            .notion-calendario-state.json
+
+          if git diff --cached --quiet; then
+            echo "No hay cambios de contenido que guardar."
+            exit 0
+          fi
+
+          git commit -m "Sync Notion: clases, laboratorios y calendario"
+          git push
