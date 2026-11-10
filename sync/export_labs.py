@@ -93,12 +93,16 @@ def classes_by_lab(api):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true")
+    parser.add_argument("--force", action="store_true", help="Regenera todos los laboratorios")
     args = parser.parse_args()
+
+    from incremental import page_signature, read_state, remove_folder, replace_folder, write_state
 
     token = os.getenv("NOTION_TOKEN", "").strip()
     dbid = os.getenv("NOTION_LABS_ID", "").strip()
     if not token or not dbid:
         raise RuntimeError("Falta NOTION_TOKEN o NOTION_LABS_ID")
+
     api = Notion(token)
     database = api.request("GET", f"/databases/{dbid}")
     sources = database.get("data_sources") or []
@@ -111,58 +115,81 @@ def main():
         grouped[cert_of(page)].append(page)
     for cert in CERTS:
         grouped[cert].sort(key=order_key)
+
+    # Las relaciones también se incluyen en las firmas, para actualizar enlaces
+    # si cambia la clase relacionada aunque el laboratorio siga intacto en Notion.
+    relations = classes_by_lab(api)
+    prior = read_state(STATE)
+    old_pages, old_signatures = prior["pages"], prior["signatures"]
+    registry, signatures, changes = {}, {}, []
+    indexes = {}
+    root_index = [
+        "# Laboratorios — Introducción al Big Data e IA", "",
+        "Laboratorios y recursos de aprendizaje organizados por certificación.", "",
+    ]
+    for cert in CERTS:
+        root_index.append(f"- [{cert}]({cert}/README.md) — {len(grouped[cert])} laboratorios")
+        root_index.append("")
+        index = [f"# Laboratorios {cert}", "", "| Laboratorio |", "| --- |"]
         print(f"\n{cert}: {len(grouped[cert])} laboratorios")
         for page in grouped[cert]:
-            print("  -", title_of(page))
+            pid = page["id"]
+            title = title_of(page)
+            dirname = slug(title) + "-" + pid.replace("-", "")[:12]
+            relative = f"{cert}/{dirname}"
+            linked = sorted(relations.get(pid, []))
+            sig = page_signature(page, relative, linked, path_urls(page), "export-labs-v2")
+            registry[pid], signatures[pid] = relative, sig
+            exists = (OUT / relative / "README.md").is_file()
+            changed = args.force or old_signatures.get(pid) != sig or old_pages.get(pid) != relative or not exists
+            if changed:
+                changes.append((cert, page, relative))
+            print(f"  [{'ACTUALIZAR' if changed else 'SIN CAMBIOS'}] {title}")
+            index.append(index_row(title, f"{dirname}/README.md"))
+        indexes[cert] = "\n".join(index) + "\n"
+
+    removed = [folder for pid, folder in old_pages.items() if pid not in registry]
+    moved = [folder for pid, folder in old_pages.items() if pid in registry and folder != registry[pid]]
     print(f"\nTotal: {len(pages)} laboratorios")
+    print(f"Por actualizar: {len(changes)}; sin cambios: {len(pages) - len(changes)}; eliminados: {len(removed)}")
     if not args.publish:
         print("PREVISUALIZACIÓN: no se ha escrito contenido.")
         return
 
-    relations = classes_by_lab(api)
-    # Se genera todo en una carpeta temporal, antes de sustituir la carpeta publicada.
+    # Primero procesar y descargar todos los recursos a carpetas temporales.
     with tempfile.TemporaryDirectory(prefix="notion-labs-") as tmp:
-        stage = Path(tmp) / "laboratorios"
-        stage.mkdir()
-        registry = {}
-        root_index = [
-            "# Laboratorios — Introducción al Big Data e IA", "",
-            "Laboratorios y recursos de aprendizaje organizados por certificación.", "",
-        ]
-        for cert in CERTS:
-            group = stage / cert
-            group.mkdir()
-            root_index.append(f"- [{cert}]({cert}/README.md) — {len(grouped[cert])} laboratorios")
-            index = [f"# Laboratorios {cert}", "", "| Laboratorio |", "| --- |"]
-            for page in grouped[cert]:
-                pid = page["id"]
-                title = title_of(page)
-                dirname = slug(title) + "-" + pid.replace("-", "")[:12]
-                folder = group / dirname
-                folder.mkdir()
-                body = Renderer(api, folder).blocks(api.children(pid))
-                output = [f"# {title}", "", f"**Certificación:** {cert}", ""]
-                for label, url in path_urls(page):
-                    output.extend([f"**{label}:** [{url}]({url})", ""])
-                related = relations.get(pid, [])
-                if related:
-                    output.extend(["## Clases relacionadas", ""])
-                    for class_title, class_folder in sorted(related):
-                        output.append(f"- [{class_title}](../../../clases/{class_folder}/README.md)")
-                    output.append("")
-                if body:
-                    output.extend([body, ""])
-                (folder / "README.md").write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
-                index.append(index_row(title, f"{dirname}/README.md"))
-                registry[pid] = f"{cert}/{dirname}"
-            (group / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
-            root_index.append("")
-        (stage / "README.md").write_text("\n".join(root_index).rstrip() + "\n", encoding="utf-8")
-        if OUT.exists():
-            shutil.rmtree(OUT)
-        shutil.copytree(stage, OUT)
-        STATE.write_text(json.dumps({"pages": registry}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"EXPORTACIÓN PREPARADA: {len(pages)} laboratorios. GitHub Actions realizará el commit.")
+        stage = Path(tmp)
+        for cert, page, relative in changes:
+            pid = page["id"]
+            title = title_of(page)
+            folder = stage / relative
+            folder.mkdir(parents=True)
+            body = Renderer(api, folder).blocks(api.children(pid))
+            output = [f"# {title}", "", f"**Certificación:** {cert}", ""]
+            for label, url in path_urls(page):
+                output.extend([f"**{label}:** [{url}]({url})", ""])
+            linked = relations.get(pid, [])
+            if linked:
+                output.extend(["## Clases relacionadas", ""])
+                for class_title, class_folder in sorted(linked):
+                    output.append(f"- [{class_title}](../../../clases/{class_folder}/README.md)")
+                output.append("")
+            if body:
+                output.extend([body, ""])
+            (folder / "README.md").write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
+
+        for _, _, relative in changes:
+            replace_folder(stage / relative, OUT / relative)
+        for relative in set(removed + moved):
+            remove_folder(OUT, relative)
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    for cert, index in indexes.items():
+        (OUT / cert).mkdir(parents=True, exist_ok=True)
+        (OUT / cert / "README.md").write_text(index, encoding="utf-8")
+    (OUT / "README.md").write_text("\n".join(root_index).rstrip() + "\n", encoding="utf-8")
+    write_state(STATE, registry, signatures)
+    print(f"[OK] Laboratorios actualizados: {len(changes)}. No modificados: {len(pages) - len(changes)}.")
 
 
 if __name__ == "__main__":
