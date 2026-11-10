@@ -8,7 +8,7 @@
 
 ### Sección 1: ¿Qué es un dato? Entidades y atributos
 
-Un **dato** es un hecho registrado: un número, una descripción, una observación. Por sí solo dice poco; cobra sentido cuando se organiza alrededor de las cosas que le importan al negocio.
+> Un **dato** es un hecho registrado: un número, una descripción, una observación. Por sí solo dice poco; cobra sentido cuando se organiza alrededor de las cosas que le importan al negocio.
 
 - **Entidad**: algo relevante para la organización sobre lo que guardamos información. Ejemplos: *Cliente*, *Producto*, *Pedido*, *Envío*, *Póliza*.
 - **Atributo**: cada característica de esa entidad. Un *Cliente* tiene nombre, dirección, teléfono, email…
@@ -69,7 +69,7 @@ No siguen una estructura definida: **documentos, imágenes, audio, vídeo, archi
 
 #### Datos vectoriales (embeddings)
 
-Son una **representación numérica del contenido** (texto, imágenes…) en forma de vector. Las aplicaciones de IA los usan para encontrar contenido **semánticamente similar** aunque no comparta palabras exactas.
+> Son una **representación numérica del contenido** (texto, imágenes…) en forma de vector. Las aplicaciones de IA los usan para encontrar contenido **semánticamente similar** aunque no comparta palabras exactas.
 
 > 💡 **Ejemplo :  e-commerce de moda**
 > Un cliente busca “chaqueta para lluvia en la montaña”. Con embeddings, el buscador devuelve un “cortavientos impermeable de trekking” aunque ninguna palabra coincida literalmente.
@@ -114,7 +114,7 @@ Pedro,Ruiz,pedro@fabrikam.com
 
 ✅ Ideal para datos **estructurados** que deben ser legibles y compatibles con casi cualquier herramienta (Excel, bases de datos, Python…).
 
-> 💡 **Ejemplo — banca**: el extracto mensual que un banco exporta para la gestoría de una pyme suele ser un CSV.
+> 💡 **Ejemplo - banca**: el extracto mensual que un banco exporta para la gestoría de una pyme suele ser un CSV.
 
 #### JSON (JavaScript Object Notation)
 
@@ -363,7 +363,7 @@ Arquitectura analítica típica
 | Concepto | Qué es | Fortaleza |
 | --- | --- | --- |
 | **Data lake** | Gran repositorio de **archivos** de todo tipo | Volumen masivo, flexibilidad, bajo coste |
-| **Data warehouse** | Almacén con **esquema relacional optimizado para lectura** | Consultas de informes y visualización |
+| **Data warehouse (OLAP)** | Almacén con **esquema relacional optimizado para lectura** | Consultas de informes y visualización |
 | **Data lakehouse** | Combina el almacenamiento flexible del lago con la **semántica de consulta relacional** del warehouse | Lo mejor de ambos, una sola copia de los datos |
 
 > ⚠️ En analítica es frecuente **desnormalizar** (introducir algo de duplicación respecto al OLTP) para que las consultas sean más rápidas. Es justo lo contrario que buscamos en OLTP.
@@ -394,6 +394,7 @@ No hace falta dominarlas todavía; basta con saber qué hace cada una:
 - **Microsoft Fabric**: plataforma **SaaS unificada** de analítica que reúne almacenamiento, ingeniería de datos, data warehousing e informes en un único espacio de trabajo.
 - **Azure Databricks**: plataforma de analítica en la nube para **ingeniería de datos y ciencia de datos a gran escala**, con **Delta Lake** como formato por defecto.
 - **Microsoft Purview**: **gobierno, seguridad y cumplimiento** unificados; permite descubrir, clasificar, proteger y gestionar datos de todas las fuentes.
+- Snowflake + dbt
 Ambas plataformas analíticas incluyen asistentes de IA en lenguaje natural: **Copilot** en Fabric y funciones asistidas como **Genie Code** en Azure Databricks.
 
 #### Arquitectura medallón
