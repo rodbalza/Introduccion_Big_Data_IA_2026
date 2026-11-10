@@ -1,0 +1,96 @@
+name: Test Notion Connection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-notion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      NOTION_CLASES_ID: ${{ vars.NOTION_CLASES_ID }}
+      NOTION_LABS_ID: ${{ vars.NOTION_LABS_ID }}
+      NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
+    steps:
+      - name: Comprobar autenticacion e IDs de Notion
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          token = os.getenv("NOTION_TOKEN", "").strip()
+          if not token:
+              sys.exit("ERROR: falta el secret NOTION_TOKEN.")
+
+          sources = {
+              "Clases": os.getenv("NOTION_CLASES_ID", "").strip(),
+              "Laboratorios": os.getenv("NOTION_LABS_ID", "").strip(),
+              "Calendario": os.getenv("NOTION_CALENDARIO_ID", "").strip(),
+          }
+
+          headers = {
+              "Authorization": "Bearer " + token,
+              "Notion-Version": "2025-09-03",
+              "Accept": "application/json",
+          }
+
+          def get(kind, object_id):
+              url = f"https://api.notion.com/v1/{kind}/{object_id}"
+              request = urllib.request.Request(url, headers=headers)
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      return response.status, json.load(response)
+              except urllib.error.HTTPError as error:
+                  return error.code, {}
+              except urllib.error.URLError as error:
+                  print(f"  Error de red consultando {kind}: {type(error.reason).__name__}")
+                  return 0, {}
+
+          failed = False
+          for name, object_id in sources.items():
+              print(f"\n--- {name} ---")
+              if not object_id:
+                  print("ERROR: falta la variable correspondiente.")
+                  failed = True
+                  continue
+
+              for endpoint in ("databases", "data_sources", "pages"):
+                  status, item = get(endpoint, object_id)
+                  if status == 200:
+                      print(f"OK: objeto de tipo {item.get('object', endpoint)}.")
+                      if endpoint == "databases":
+                          data_sources = item.get("data_sources", [])
+                          if data_sources:
+                              print("Data sources:")
+                              for data_source in data_sources:
+                                  print(" -", data_source.get("id", "(sin id)"))
+                          elif not data_sources:
+                              print("No se devolvieron data sources.")
+                      if endpoint == "pages":
+                          print("Es una pagina; comprobaremos si contiene una base de datos o vista vinculada.")
+                      break
+                  if status in (401, 403):
+                      print(f"ERROR HTTP {status}: credenciales o permisos insuficientes.")
+                      failed = True
+                      break
+                  if status not in (404,):
+                      print(f"ERROR HTTP {status}: no se pudo consultar el objeto.")
+                      failed = True
+                      break
+              else:
+                  print("ERROR: ID no encontrado como base de datos, data source ni pagina (404).")
+                  print("Comprueba el ID y que la conexion tenga acceso directo.")
+                  failed = True
+
+          if failed:
+              sys.exit(1)
+          print("\nComprobacion terminada. Todavia no se ha exportado contenido.")
+          PY
