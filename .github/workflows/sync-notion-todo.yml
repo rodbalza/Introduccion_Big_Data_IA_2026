@@ -1,6 +1,9 @@
 name: Sync Notion - Todo
 
 on:
+  schedule:
+    # Cada 30 minutos, desplazado del minuto 0 para reducir retrasos.
+    - cron: '7,37 * * * *'
   workflow_dispatch:
     inputs:
       publicar:
@@ -30,7 +33,7 @@ jobs:
       NOTION_CLASES_ID: ${{ vars.NOTION_CLASES_ID }}
       NOTION_LABS_ID: ${{ vars.NOTION_LABS_ID }}
       NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
-      PUBLICAR: ${{ inputs.publicar }}
+      PUBLICAR: ${{ github.event_name == 'schedule' || inputs.publicar }}
       REGENERAR_TODO: ${{ inputs.regenerar_todo }}
 
     steps:
@@ -84,7 +87,7 @@ jobs:
           fi
 
       - name: Publicar los cambios en un solo commit
-        if: ${{ inputs.publicar }}
+        if: ${{ github.event_name == 'schedule' || inputs.publicar }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
