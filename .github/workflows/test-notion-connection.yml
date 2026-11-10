@@ -62,7 +62,7 @@ jobs:
                   failed = True
                   continue
 
-              for endpoint in ("databases", "data_sources", "pages"):
+              for endpoint in (("pages", "databases", "data_sources") if name == "Calendario" else ("databases", "data_sources", "pages")):
                   status, item = get(endpoint, object_id)
                   if status == 200:
                       print(f"OK: objeto de tipo {item.get('object', endpoint)}.")
@@ -81,12 +81,13 @@ jobs:
                       print(f"ERROR HTTP {status}: credenciales o permisos insuficientes.")
                       failed = True
                       break
-                  if status not in (404,):
+                  if status not in (400, 404):
                       print(f"ERROR HTTP {status}: no se pudo consultar el objeto.")
                       failed = True
                       break
+                  print(f"  {endpoint}: HTTP {status}; probando otro tipo de objeto.")
               else:
-                  print("ERROR: ID no encontrado como base de datos, data source ni pagina (404).")
+                  print("ERROR: ID no encontrado como base de datos, data source ni pagina (400/404).")
                   print("Comprueba el ID y que la conexion tenga acceso directo.")
                   failed = True
 
