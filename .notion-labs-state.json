@@ -1,0 +1,25 @@
+{
+  "pages": {
+    "4121a81b-bef4-8041-9be8-e3302d945756": "DP-900/data-concepts-and-data-roles-4121a81bbef4",
+    "4121a81b-bef4-802d-b3ec-cc30c796ce64": "DP-900/lab-01-explore-azure-relational-database-services-4121a81bbef4",
+    "4121a81b-bef4-80ce-bade-f082e3e92e16": "DP-900/lab-02-explore-azure-storage-4121a81bbef4",
+    "4121a81b-bef4-80e8-9dc1-c77a310df191": "DP-900/lab-03-explore-azure-cosmos-db-4121a81bbef4",
+    "4121a81b-bef4-80b5-82bc-d8bd0a86d869": "DP-900/lab-04-explore-data-analytics-in-microsoft-fabric-4121a81bbef4",
+    "4121a81b-bef4-8035-9a7b-d39970dd7ca2": "DP-900/lab-05-fabric-real-time-4121a81bbef4",
+    "4121a81b-bef4-80ec-b6bd-ee081805fa68": "DP-900/lab-06-explore-fundamentals-of-data-visualization-with-power-bi-4121a81bbef4",
+    "4121a81b-bef4-8033-8906-f40987daa358": "AI-901/lab-01-explore-ai-workloads-4121a81bbef4",
+    "4121a81b-bef4-8040-ba31-edad768734ef": "AI-901/lab-02-explore-generative-ai-and-agents-4121a81bbef4",
+    "4121a81b-bef4-801d-9476-de830f1935e9": "AI-901/lab-03-explore-text-analytics-4121a81bbef4",
+    "4121a81b-bef4-809f-98f5-ff723b801df5": "AI-901/lab-04-explore-ai-speech-4121a81bbef4",
+    "4121a81b-bef4-807b-bb73-c925ce578e84": "AI-901/lab-05-explore-computer-vision-4121a81bbef4",
+    "4121a81b-bef4-8012-a1af-e7e6ee796ab1": "AI-901/lab-06-explore-information-extraction-4121a81bbef4",
+    "4121a81b-bef4-803e-8a50-f480590cfa39": "AI-901/lab-07-explore-retrieval-augmented-generation-rag-4121a81bbef4",
+    "4121a81b-bef4-802b-8d44-f16800aca464": "AI-901/lab-08-get-started-with-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-80fb-8f61-db6c324d3aec": "AI-901/lab-09-get-started-with-generative-ai-and-agents-in-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-80af-81ed-d80405f6ab43": "AI-901/lab-10-get-started-with-text-analysis-in-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-80d1-be26-f803ece296ff": "AI-901/lab-11-get-started-with-speech-in-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-800e-be69-ec8304a870e2": "AI-901/lab-12-get-started-with-computer-vision-in-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-80a3-84b1-f0e7f4a94ce7": "AI-901/lab-13-get-started-with-information-extraction-in-microsoft-foundry-4121a81bbef4",
+    "4121a81b-bef4-80d3-b3ba-c90eaa261e5d": "AI-901/lab-14-get-started-with-foundry-iq-in-microsoft-foundry-4121a81bbef4"
+  }
+}
