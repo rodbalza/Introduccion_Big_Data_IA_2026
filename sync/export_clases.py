@@ -222,12 +222,14 @@ class Renderer:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true", help="Publica las clases en el repositorio público")
+    parser.add_argument("--force", action="store_true", help="Regenera todas las clases")
     args = parser.parse_args()
     token = os.getenv("NOTION_TOKEN")
     db_id = os.getenv("NOTION_CLASES_ID")
     if not token or not db_id:
         raise RuntimeError("Falta NOTION_TOKEN o NOTION_CLASES_ID")
 
+    from incremental import page_signature, read_state, remove_folder, replace_folder, write_state
     api = Notion(token)
     db = api.request("GET", f"/databases/{db_id}")
     sources = db.get("data_sources") or []
@@ -236,41 +238,61 @@ def main():
     pages = api.items("POST", f"/data_sources/{sources[0]['id']}/query")
     pages = [p for p in pages if p.get("object") == "page" and not p.get("archived") and not p.get("in_trash")]
     pages.sort(key=lambda p: (date_of(p) or "9999", title_of(p).lower(), p["id"]))
-    print(f"Clases disponibles en Notion: {len(pages)}")
+
+    prior = read_state(STATE)
+    old_pages, old_signatures = prior["pages"], prior["signatures"]
+    manifest, signatures, changes = {}, {}, []
+    index = [
+        "# Clases — Introducción al Big Data e IA", "",
+        "Apuntes publicados desde Notion, organizados cronológicamente.", "",
+        "| Fecha | Clase |", "| --- | --- |",
+    ]
     for page in pages:
-        print(f"  {date_of(page) or 'Sin fecha'} | {title_of(page)}")
+        pid = page["id"]
+        title = title_of(page)
+        name = slug(title) + "-" + pid.replace("-", "")[:8]
+        sig = page_signature(page, name, "export-clases-v2")
+        manifest[pid], signatures[pid] = name, sig
+        exists = (OUT / name / "README.md").is_file()
+        # Estados antiguos sin firmas: se regeneran una sola vez para establecer baseline.
+        updated = args.force or old_signatures.get(pid) != sig or old_pages.get(pid) != name or not exists
+        if updated:
+            changes.append(page)
+        status = "ACTUALIZAR" if updated else "SIN CAMBIOS"
+        print(f"  [{status}] {date_of(page) or 'Sin fecha'} | {title}")
+        index.append(f"| {date_of(page)[:10] or '—'} | [{title.replace('|', chr(92) + '|')}]({name}/README.md) |")
+
+    removed = [(pid, folder) for pid, folder in old_pages.items() if pid not in manifest]
+    moved = [folder for pid, folder in old_pages.items() if pid in manifest and folder != manifest[pid]]
+    print(f"Clases disponibles en Notion: {len(pages)}")
+    print(f"Por actualizar: {len(changes)}; sin cambios: {len(pages) - len(changes)}; eliminadas: {len(removed)}")
     if not args.publish:
-        print("PREVISUALIZACIÓN: no se ha escrito contenido. Para publicar, activa la opción publish.")
+        print("PREVISUALIZACIÓN: no se ha escrito contenido.")
         return
 
-    # Un fallo en Notion o al descargar assets detiene el proceso ANTES de reemplazar el contenido existente.
+    # Todas las páginas que requieren exportación se preparan antes de tocar archivos existentes.
     import tempfile
     with tempfile.TemporaryDirectory(prefix="notion-clases-") as tmp:
-        staged = Path(tmp) / "clases"
-        staged.mkdir()
-        manifest = {}
-        index = [
-            "# Clases — Introducción al Big Data e IA", "",
-            "Apuntes publicados desde Notion, organizados cronológicamente.", "",
-            "| Fecha | Clase |", "| --- | --- |",
-        ]
-        for page in pages:
+        stage = Path(tmp)
+        for page in changes:
             pid = page["id"]
             title = title_of(page)
-            name = slug(title) + "-" + pid.replace("-", "")[:8]
-            folder = staged / name
+            name = manifest[pid]
+            folder = stage / name
             folder.mkdir()
             body = Renderer(api, folder).blocks(api.children(pid))
             (folder / "README.md").write_text(f"# {title}\n\n{body}\n", encoding="utf-8")
-            index.append(f"| {date_of(page)[:10] or '—'} | [{title.replace('|', chr(92) + '|')}]({name}/README.md) |")
-            manifest[pid] = name
-        (staged / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
-        # Exclusivamente la carpeta gestionada por este script.
-        if OUT.exists():
-            shutil.rmtree(OUT)
-        shutil.copytree(staged, OUT)
-        STATE.write_text(json.dumps({"pages": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"EXPORTACIÓN PREPARADA: {len(pages)} clases. GitHub Actions gestionará el commit.")
+
+        for page in changes:
+            name = manifest[page["id"]]
+            replace_folder(stage / name, OUT / name)
+        for folder in set([f for _, f in removed] + moved):
+            remove_folder(OUT, folder)
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
+    write_state(STATE, manifest, signatures)
+    print(f"[OK] Clases actualizadas: {len(changes)}. No modificadas: {len(pages) - len(changes)}.")
 
 
 if __name__ == "__main__":
