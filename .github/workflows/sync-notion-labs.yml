@@ -8,12 +8,17 @@ on:
         type: boolean
         default: false
         required: true
+      regenerar_todo:
+        description: "Forzar regeneracion completa aunque no haya cambios"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 concurrency:
-  group: notion-laboratorios
+  group: notion-sync-public
   cancel-in-progress: false
 
 jobs:
@@ -38,11 +43,12 @@ jobs:
           NOTION_LABS_ID: ${{ vars.NOTION_LABS_ID }}
           NOTION_CLASES_ID: ${{ vars.NOTION_CLASES_ID }}
           PUBLICAR: ${{ inputs.publicar }}
+          REGENERAR_TODO: ${{ inputs.regenerar_todo }}
         run: |
           if [ "$PUBLICAR" = "true" ]; then
-            python sync/export_labs.py --publish
+            python sync/export_labs.py --publish $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           else
-            python sync/export_labs.py
+            python sync/export_labs.py $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           fi
 
       - name: Publicar cambios
