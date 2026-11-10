@@ -8,12 +8,17 @@ on:
         required: true
         type: boolean
         default: false
+      regenerar_todo:
+        description: "Forzar regeneracion completa aunque no haya cambios"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 concurrency:
-  group: sync-notion-todo
+  group: notion-sync-public
   cancel-in-progress: false
 
 jobs:
@@ -26,6 +31,7 @@ jobs:
       NOTION_LABS_ID: ${{ vars.NOTION_LABS_ID }}
       NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
       PUBLICAR: ${{ inputs.publicar }}
+      REGENERAR_TODO: ${{ inputs.regenerar_todo }}
 
     steps:
       - name: Obtener repositorio
@@ -54,27 +60,27 @@ jobs:
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
-            python sync/export_clases.py --publish
+            python sync/export_clases.py --publish $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           else
-            python sync/export_clases.py
+            python sync/export_clases.py $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           fi
 
       - name: Sincronizar Laboratorios
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
-            python sync/export_labs.py --publish
+            python sync/export_labs.py --publish $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           else
-            python sync/export_labs.py
+            python sync/export_labs.py $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           fi
 
       - name: Sincronizar Calendario
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
-            python sync/export_calendario.py --publish
+            python sync/export_calendario.py --publish $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           else
-            python sync/export_calendario.py
+            python sync/export_calendario.py $([ "$REGENERAR_TODO" = "true" ] && echo --force)
           fi
 
       - name: Publicar los cambios en un solo commit
