@@ -37,9 +37,45 @@ def scan_blocks(api, blocks):
     return counts
 
 
+def calendar_fingerprint(api, page, blocks):
+    """Detecta cambios en bloques anidados sin depender de URLs firmadas caducables."""
+    from incremental import signature
+
+    def stable(value):
+        if isinstance(value, list):
+            return [stable(item) for item in value]
+        if isinstance(value, dict):
+            result = {}
+            for key, item in value.items():
+                # Los archivos de Notion proporcionan URLs firmadas variables.
+                if key == "file" and isinstance(item, dict):
+                    result[key] = {k: stable(v) for k, v in item.items() if k not in ("url", "expiry_time")}
+                else:
+                    result[key] = stable(item)
+            return result
+        return value
+
+    def snapshot(items):
+        values = []
+        for block in items:
+            values.append(stable(block))
+            if block.get("has_children") and block.get("type") not in ("child_page", "child_database"):
+                values.append(snapshot(api.children(block["id"])))
+        return values
+
+    return signature([
+        page.get("id"),
+        page.get("last_edited_time"),
+        stable(page.get("cover")),
+        snapshot(blocks),
+        "export-calendar-v2",
+    ])
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true", help="Exporta Calendario al repositorio")
+    parser.add_argument("--force", action="store_true", help="Regenera el calendario completo")
     args = parser.parse_args()
 
     token = os.getenv("NOTION_TOKEN", "").strip()
@@ -63,8 +99,15 @@ def main():
         print(f"  {kind}: {count}")
     print("Portada en Notion:", "sí" if page.get("cover") else "no")
 
+    signature_value = calendar_fingerprint(api, page, blocks)
+    old_state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
+    changed = args.force or old_state.get("signature") != signature_value or not (OUTPUT / "README.md").is_file()
+    print("Calendario:", "ACTUALIZAR" if changed else "SIN CAMBIOS")
     if not args.publish:
         print("PREVISUALIZACIÓN: no se han escrito archivos.")
+        return
+    if not changed:
+        print("[OK] Calendario sin cambios: no se regeneran imágenes ni Markdown.")
         return
 
     with tempfile.TemporaryDirectory(prefix="notion-calendario-") as temp:
@@ -99,6 +142,7 @@ def main():
         "page_id": page_id,
         "last_edited_time": page.get("last_edited_time"),
         "block_count": sum(counts.values()),
+        "signature": signature_value,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("EXPORTACIÓN PREPARADA: calendario/README.md y assets.")
     print("GitHub Actions registrará los cambios en un commit.")
