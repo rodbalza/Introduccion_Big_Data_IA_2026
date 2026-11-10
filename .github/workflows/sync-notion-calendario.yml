@@ -1,0 +1,58 @@
+name: Sync Notion - Calendario
+
+on:
+  workflow_dispatch:
+    inputs:
+      publicar:
+        description: "Publicar el calendario (desmarcado = previsualizacion)"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: notion-calendario
+  cancel-in-progress: false
+
+jobs:
+  calendario:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: python -m pip install "requests>=2.32,<3"
+
+      - name: Consultar Calendario de Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
+          PUBLICAR: ${{ inputs.publicar }}
+        run: |
+          if [ "$PUBLICAR" = "true" ]; then
+            python sync/export_calendario.py --publish
+          else
+            python sync/export_calendario.py
+          fi
+
+      - name: Publicar cambios
+        if: ${{ inputs.publicar }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- calendario/ .notion-calendario-state.json
+          if git diff --cached --quiet; then
+            echo "No hay cambios que publicar."
+            exit 0
+          fi
+          git commit -m "Sync Notion: calendario"
+          git push
