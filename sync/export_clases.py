@@ -46,7 +46,7 @@ def rich(parts):
 
 
 def cell(parts):
-    return re.sub(r"(?<!\\)\\|", r"\\|", rich(parts)).replace("\n", "<br>")
+    return re.sub(r"(?<!\\)\|", r"\\|", rich(parts)).replace("\n", "<br>")
 
 
 class Notion:
