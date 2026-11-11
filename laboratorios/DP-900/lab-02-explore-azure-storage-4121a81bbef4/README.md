@@ -6,7 +6,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 04 - (DP-900)](../../../clases/clase-04-dp-900-4121a81b/README.md)
+- [🔖Clase 04 - Explorar Azure Storage para datos no relacionales](../../../clases/clase-04-explorar-azure-storage-para-datos-no-relacionales-4121a81b/README.md)
 
 ### Modulo:
 

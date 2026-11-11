@@ -2,7 +2,7 @@
   "version": 2,
   "pages": {
     "4121a81b-bef4-80c7-886a-e11b82f641b5": "clase-03-dp-900-data-concepts-azure-data-relational-4121a81b",
-    "4121a81b-bef4-8018-a3b3-c61be8ab3fb8": "clase-04-dp-900-4121a81b",
+    "4121a81b-bef4-8018-a3b3-c61be8ab3fb8": "clase-04-explorar-azure-storage-para-datos-no-relacionales-4121a81b",
     "4121a81b-bef4-8078-88dc-f20fb3230dfd": "clase-05-dp-900-4121a81b",
     "4121a81b-bef4-80a4-abdd-c6932ece0794": "clase-06-dp-900-4121a81b",
     "4121a81b-bef4-800c-9543-e55f28c739fb": "clase-07-dp-900-4121a81b",
@@ -18,7 +18,7 @@
   },
   "signatures": {
     "4121a81b-bef4-80c7-886a-e11b82f641b5": "1aa3011b7e82bb4a792913f350da6fdace6728acaaeb97b550c7e9de330621ef",
-    "4121a81b-bef4-8018-a3b3-c61be8ab3fb8": "3cc2793d6c99c6b878dba1cb019d2784d649a9e310426ff3e0ffa1015527b76d",
+    "4121a81b-bef4-8018-a3b3-c61be8ab3fb8": "e345268cfc3952ccd8e55c82655bfd67ca3be8017c4ce81b05a5aecc45c667c0",
     "4121a81b-bef4-8078-88dc-f20fb3230dfd": "e5c2cc20c8ec75509617645fa1e0215f720fa1826649500f97886d0065a7ab08",
     "4121a81b-bef4-80a4-abdd-c6932ece0794": "f1e0e5b2f6561adaab1e1c480bb73f5749c8c85c1e5a1beb1c5ce9a66ddaa79f",
     "4121a81b-bef4-800c-9543-e55f28c739fb": "24aca8d95c08c55ef8645cbdc2631eca8d88d1bbc5e5c90becd28306ca5f2817",
