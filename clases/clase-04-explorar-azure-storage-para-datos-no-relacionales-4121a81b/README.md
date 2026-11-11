@@ -47,8 +47,6 @@
 
 ![Imagen](assets/asset-005.png)
 
-*Fuente: Microsoft Learn*
-
 ---
 
 Ejemplos típicos de contenido en Blob Storage:
