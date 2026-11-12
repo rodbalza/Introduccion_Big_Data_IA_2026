@@ -6,7 +6,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 05 - (DP-900)](../../../clases/clase-05-dp-900-4121a81b/README.md)
+- [🔖Clase 05 - Explore Azure Cosmos DB](../../../clases/clase-05-explore-azure-cosmos-db-4121a81b/README.md)
 
 ### Modulo:
 
