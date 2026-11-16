@@ -122,7 +122,7 @@ Cosmos DB organiza la información en **cuatro niveles**:
 
 ---
 
-#### Garantías de servicio (SLA)
+#### Garantías de servicio (SLA - **Service Level Agreement - Acuerdo de Nivel de Servicio**)
 
 | Métrica | Valor |
 | --- | --- |
@@ -135,7 +135,7 @@ Cosmos DB organiza la información en **cuatro niveles**:
 
 ---
 
-**Ejemplo. Cadena hotelera internacional:** el motor de reservas tiene la cuenta replicada en West Europe, East US y Southeast Asia. Un cliente en Tokio que reserva una habitación en Barcelona escribe en la región asiática con latencia mínima; la reserva se replica al resto de regiones. Si la región europea sufre una incidencia, las otras dos siguen dando servicio.
+> **Ejemplo. Cadena hotelera internacional:** el motor de reservas tiene la cuenta replicada en West Europe, East US y Southeast Asia. Un cliente en Tokio que reserva una habitación en Barcelona escribe en la región asiática con latencia mínima; la reserva se replica al resto de regiones. Si la región europea sufre una incidencia, las otras dos siguen dando servicio.
 
 ---
 
@@ -147,23 +147,11 @@ Cosmos DB ofrece **cinco niveles de consistencia** para elegir el equilibrio ent
 
 ---
 
-| Nivel | Qué garantiza | Ejemplo de uso empresarial |
-| --- | --- | --- |
-| **Strong** (Fuerte) | Toda lectura refleja la escritura más reciente. | Saldo de una cuenta bancaria, stock de entradas para un concierto |
-| **Bounded staleness** (Obsolescencia limitada) | Las lecturas pueden ir por detrás de las escrituras, pero como máximo un intervalo configurable (tiempo o número de versiones). | Cotizaciones con retraso aceptable de pocos segundos |
-| **Session** (Sesión) | Consistencia garantizada **dentro de la sesión de un cliente**: el usuario siempre ve sus propias escrituras. | Carrito de la compra, perfil de usuario. **Es el nivel más utilizado.** |
-| **Consistent prefix** (Prefijo coherente) | Nunca se ven escrituras desordenadas, aunque los datos puedan estar desactualizados. | Historial de estados de un envío (creado → enviado → entregado, nunca al revés) |
-| **Eventual** (Final) | Las réplicas convergen con el tiempo. Garantía más débil, pero máxima disponibilidad y menor latencia. | Contador de “me gusta”, número de visualizaciones de un producto |
+![Imagen](assets/asset-008.png)
 
 ---
 
-```plain text
-Más consistencia                                    Más disponibilidad y menor latencia
-◄──────────────────────────────────────────────────────────────────────────────────►
-Strong   →   Bounded staleness   →   Session   →   Consistent prefix   →   Eventual
-```
-
-> 💡 **Para el examen:** recuerda los cinco nombres y su orden, y que **Session** es el nivel más utilizado tanto en aplicaciones de una región como globales.
+![Imagen](assets/asset-009.png)
 
 ---
 
@@ -171,9 +159,15 @@ Strong   →   Bounded staleness   →   Session   →   Consistent prefix   →
 
 #### ¿Qué es una Request Unit?
 
-Cosmos DB mide la capacidad en **Request Units por segundo (RU/s)**. Una **RU** es, aproximadamente, el coste de **leer un único elemento de 1 KB por su ID y su clave de partición** (lo que se conoce como *point read*).
+> 📖 Cosmos DB mide la capacidad en **Request Units por segundo (RU/s)**. Una **RU** es, aproximadamente, el coste de **leer un único elemento de 1 KB por su ID y su clave de partición** (lo que se conoce como *point read*).
 
-Todas las operaciones (lecturas, escrituras, consultas, borrados) consumen RU. Así se obtiene **una única métrica** para razonar tanto sobre el **rendimiento** como sobre el **coste**, sin pensar en CPU, memoria o IOPS por separado.
+---
+
+![Imagen](assets/asset-010.png)
+
+---
+
+![Imagen](assets/asset-011.png)
 
 ---
 
@@ -190,21 +184,13 @@ Como orientación:
 
 #### Opciones de rendimiento
 
-| Opción | Cómo funciona | Cuándo usarla |
-| --- | --- | --- |
-| **Dedicado** | El rendimiento aprovisionado se reserva **en exclusiva para un contenedor**. | Contenedores críticos con carga predecible y alta |
-| **Compartido** | El rendimiento se define a **nivel de base de datos** y se comparte entre **hasta 25 contenedores**. | Muchos contenedores pequeños, entornos de desarrollo, aplicaciones multi-tenant |
-| **Serverless** | No se aprovisiona nada; **pagas por las RU que consumen tus peticiones**. | Tráfico intermitente e impredecible, prototipos, aplicaciones internas de poco uso |
-
-> ⚠️ **Limitación importante:** las cuentas **serverless están limitadas a una única región de Azure**. Si la aplicación necesita distribución global multirregión, hay que usar **rendimiento aprovisionado**.
+![Imagen](assets/asset-012.png)
 
 ---
 
 #### Autoscale (escalado automático)
 
-Con **autoscale** defines un **máximo de RU/s** y Cosmos DB ajusta la capacidad automáticamente dentro de ese rango según la demanda real (escalando hasta un mínimo del 10 % del máximo).
-
-**Ejemplo de negocio — tienda online en Black Friday:** con autoscale configurado a 40.000 RU/s máximo, la tienda funciona a ~4.000 RU/s durante el año y escala automáticamente cuando llega el pico de tráfico, sin intervención del equipo de operaciones.
+![Imagen](assets/asset-013.png)
 
 ---
 
@@ -212,12 +198,7 @@ Con **autoscale** defines un **máximo de RU/s** y Cosmos DB ajusta la capacidad
 
 #### Escenarios ideales
 
-| Sector / escenario | Por qué encaja Cosmos DB |
-| --- | --- |
-| **IoT y telemetría** | Ingesta rápida de datos de alta frecuencia procedentes de dispositivos, disponibles para procesamiento casi en tiempo real. Ej.: flota de camiones refrigerados enviando temperatura cada 5 segundos. |
-| **Videojuegos** | Perfiles de jugador, clasificaciones (*leaderboards*) y estadísticas que requieren lecturas y escrituras de muy baja latencia. |
-| **Retail y e-commerce** | Catálogos de producto con atributos variables, carritos de la compra y flujos de pedidos a cualquier escala. |
-| **Aplicaciones web y móviles** | Experiencias personalizadas, funcionalidades sociales e integraciones con terceros. |
+![Imagen](assets/asset-014.png)
 
 ---
 
@@ -233,59 +214,27 @@ Con **autoscale** defines un **máximo de RU/s** y Cosmos DB ajusta la capacidad
 
 ### Sección 7. Las APIs de Azure Cosmos DB
 
-#### ¿Por qué varias APIs?
-
-Al crear una cuenta de Cosmos DB **eliges una API**. Esa elección determina:
-
-- El **formato de datos** que envía la aplicación.
-- El **lenguaje de consulta**.
-- Las **librerías cliente** compatibles.
----
-
-Internamente, Cosmos DB guarda los datos en su propio formato; la API es una **capa de abstracción** por encima. Las APIs son **compatibles a nivel de protocolo de red** (*wire-protocol compatible*), así que un equipo que ya tiene una aplicación en MongoDB o Apache Cassandra puede apuntarla a Cosmos DB con **cambios mínimos de código**, y ganar distribución global, rendimiento gestionado y disponibilidad respaldada por SLA.
+![Imagen](assets/asset-015.png)
 
 ---
 
 Las **cinco APIs** soportadas son:
 
-```plain text
-                    ┌──────────────┐
-                    │    NoSQL     │  ← nativa
-                    └──────┬───────┘
-   ┌──────────┐     ┌──────┴───────┐     ┌──────────┐
-   │ MongoDB  │─────│  COSMOS DB   │─────│  Table   │
-   └──────────┘     └──────┬───────┘     └──────────┘
-             ┌─────────────┴─────────────┐
-     ┌───────┴────────┐          ┌───────┴────────┐
-     │Apache Cassandra│          │ Apache Gremlin │
-     └────────────────┘          └────────────────┘
-```
+![Imagen](assets/asset-016.png)
 
 ---
-
-> ℹ️ **Azure Cosmos DB for PostgreSQL** es una oferta separada que está en **proceso de retirada** y **no se recomienda para proyectos nuevos**.
 
 ---
 
 #### Tabla resumen de las APIs
 
-| API | Modelo de datos | Formato | Lenguaje de consulta | Caso típico |
-| --- | --- | --- | --- | --- |
-| **NoSQL** | Documentos | JSON | Sintaxis tipo SQL | Aplicaciones nuevas nativas en Cosmos DB |
-| **MongoDB** | Documentos | BSON | MQL (MongoDB Query Language) | Equipos con experiencia en MongoDB |
-| **Table** | Clave-valor | Entidades con PartitionKey + RowKey | API de Table Storage / OData | Migrar desde Azure Table Storage |
-| **Apache Cassandra** | Familia de columnas | Filas con columnas variables | CQL | Migrar cargas Cassandra a un servicio gestionado |
-| **Apache Gremlin** | Grafo | Vértices y aristas | Gremlin | Redes sociales, recomendaciones, detección de fraude |
+![Imagen](assets/asset-017.png)
 
 ---
 
 ### Sección 8. Azure Cosmos DB for NoSQL
 
-Es la **API nativa** de Cosmos DB. Guarda los datos como **documentos JSON** y se consulta con una **sintaxis similar a SQL**.
-
-> ℹ️ Esta API se llamaba antes **SQL API**. Si en documentación antigua aparece “SQL API”, se refiere al mismo servicio.
-
-Microsoft la recomienda para escenarios de alta escala que necesitan **SLA de disponibilidad del 99,999 %**, **autoscale instantáneo** y **conmutación por error automática** entre regiones.
+![Imagen](assets/asset-018.png)
 
 ---
 
@@ -355,18 +304,14 @@ GROUP BY c.provincia
 
 #### Fabric mirroring
 
-Cosmos DB for NoSQL admite **Fabric mirroring**, que replica los datos operacionales en **Microsoft Fabric** **sin construir ni mantener pipelines ETL**. Permite hacer analítica sobre datos casi en tiempo real **sin consumir RU** y **sin afectar a la carga transaccional**.
-
-**Ejemplo de negocio:** el equipo de BI de la aseguradora analiza en Power BI (sobre Fabric) la evolución de primas por provincia, mientras la aplicación de clientes sigue funcionando a pleno rendimiento contra Cosmos DB.
+![Imagen](assets/asset-019.png)
 
 ---
 
 ### Sección 9. Azure Cosmos DB for MongoDB
 
-Compatible con los **drivers y librerías cliente de MongoDB**: las aplicaciones existentes pueden conectarse a Cosmos DB sin cambios significativos de código.
+![Imagen](assets/asset-020.png)
 
-- Los datos se almacenan en **BSON** (*Binary JSON*, una codificación binaria de JSON).
-- Las consultas usan **MQL (MongoDB Query Language)**, una sintaxis orientada a objetos donde se llaman métodos sobre las colecciones.
 ---
 
 #### Ejemplo: inventario de una ferretería online
@@ -402,59 +347,39 @@ db.products.insertOne({ id: 124, name: "Destornillador", price: 4.50 })
 
 ---
 
-> ℹ️ Para **migrar una aplicación MongoDB existente** o usar el **conjunto completo de funcionalidades de MQL**, Microsoft recomienda **Azure DocumentDB**, un servicio separado con compatibilidad con el protocolo de MongoDB.
-
 ---
 
 ### Sección 10. Azure Cosmos DB for Table
 
-Almacena los datos como **pares clave-valor en tablas**, usando el **mismo modelo de programación que Azure Table Storage**. Una aplicación que ya use Azure Table Storage puede conectarse a Cosmos DB for Table con cambios mínimos.
-
-Cada fila se identifica por la combinación **PartitionKey + RowKey**:
-
-| PartitionKey | RowKey | Name | Email |
-| --- | --- | --- | --- |
-| 1 | 123 | Joe Jones | [joe@litware.com](mailto:joe@litware.com) |
-| 1 | 124 | Samir Nadoy | [samir@northwind.com](mailto:samir@northwind.com) |
+![Imagen](assets/asset-021.png)
 
 ---
 
-Las filas se recuperan mediante un endpoint de estilo REST:
+![Imagen](assets/asset-022.png)
 
-```plain text
-https://endpoint/Customers(PartitionKey='1',RowKey='124')
-```
+---
+
+![Imagen](assets/asset-023.png)
+
+---
+
+![Imagen](assets/asset-024.png)
 
 ---
 
 #### Cosmos DB for Table vs Azure Table Storage
 
-| Característica | Azure Table Storage | Cosmos DB for Table |
-| --- | --- | --- |
-| Modelo | Clave-valor | Clave-valor (mismo API) |
-| Indexación | Solo PartitionKey y RowKey | **Automática en todas las propiedades** |
-| Distribución global | Limitada | **Llave en mano, multirregión** |
-| Rendimiento y disponibilidad | Estándar | **Mayor, con SLA de latencia** |
-| Coste | Más bajo | Más alto |
+![Imagen](assets/asset-025.png)
 
 ---
 
-> 💡 Azure Table Storage **sigue disponible**. Cosmos DB for Table tiene sentido cuando la carga clave-valor necesita mayor rendimiento, distribución global o índices secundarios automáticos.
-
-**Ejemplo de negocio:** una empresa de logística guarda el registro de escaneos de paquetes con `PartitionKey = idAlmacén` y `RowKey = idPaquete`. Al expandirse a Latinoamérica, migra a Cosmos DB for Table para replicar los datos en una región americana.
+![Imagen](assets/asset-026.png)
 
 ---
 
 ### Sección 11. Azure Cosmos DB for Apache Cassandra
 
-Compatible con **Apache Cassandra**, base de datos open source con modelo de **familia de columnas** (*column-family*). En este modelo, **las filas no tienen por qué contener las mismas columnas**, a diferencia de una tabla relacional con esquema fijo.
-
-Tabla `Employees`:
-
-| ID | Name | Manager |
-| --- | --- | --- |
-| 1 | Sue Smith |  |
-| 2 | Ben Chan | Sue Smith |
+![Imagen](assets/asset-027.png)
 
 ---
 
@@ -466,29 +391,15 @@ SELECT * FROM Employees WHERE ID = 2
 
 ---
 
-**Cuándo elegirla:** equipos que **migran una carga de Apache Cassandra** a una base de datos cloud totalmente gestionada, sin tener que administrar nodos, réplicas ni reparaciones del clúster.
-
-**Ejemplo de negocio:** una operadora de telecomunicaciones registra eventos de red (llamadas, sesiones de datos) en un clúster Cassandra on-premises. Migrando a Cosmos DB for Cassandra mantiene su código CQL y elimina la administración del clúster.
+![Imagen](assets/asset-028.png)
 
 ---
 
 ### Sección 12. Azure Cosmos DB for Apache Gremlin
 
-Diseñada para **datos de grafo**: las entidades son **vértices** (nodos) y las relaciones son **aristas** (*edges*). Los grafos son útiles cuando **las conexiones entre los datos son tan importantes como los propios datos**:
-
-- Redes sociales (quién sigue a quién).
-- Motores de recomendación (clientes que compraron X también compraron Y).
-- **Detección de fraude** (cuentas que comparten dispositivo, dirección o tarjeta).
-- Jerarquías organizativas (quién reporta a quién).
 ---
 
-```plain text
-   (Sue) ◄──reports to── (Ben)
-     │                     │
-  member of            member of
-     ▼                     ▼
-       (Departamento Ventas)
-```
+![Imagen](assets/asset-029.png)
 
 ---
 
@@ -507,7 +418,7 @@ g.V().hasLabel('employee').order().by('id')
 
 ---
 
-**Ejemplo de negocio: banca y fraude:** cada cliente, tarjeta, dispositivo y dirección IP es un vértice; cada uso (cliente *usa* dispositivo, tarjeta *pagó desde* IP) es una arista. Una consulta Gremlin detecta en milisegundos que 15 cuentas “independientes” comparten el mismo dispositivo, algo muy costoso de encontrar con `JOIN` relacionales encadenados.
+![Imagen](assets/asset-030.png)
 
 ---
 
