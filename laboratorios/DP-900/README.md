@@ -3,6 +3,7 @@
 | Laboratorio |
 | --- |
 | [💻 Data Concepts and Data Roles](data-concepts-and-data-roles-4121a81bbef4/README.md) |
+| [📋Caso practico: Ingestas con Azure Data Factory](caso-practico-ingestas-con-azure-data-factory-41a1a81bbef4/README.md) |
 | [💻 Lab 01 - **Explore Azure relational database services**](lab-01-explore-azure-relational-database-services-4121a81bbef4/README.md) |
 | [💻Lab 02 - **Explore Azure Storage**](lab-02-explore-azure-storage-4121a81bbef4/README.md) |
 | [💻Lab 03 - **Explore Azure Cosmos DB**](lab-03-explore-azure-cosmos-db-4121a81bbef4/README.md) |
