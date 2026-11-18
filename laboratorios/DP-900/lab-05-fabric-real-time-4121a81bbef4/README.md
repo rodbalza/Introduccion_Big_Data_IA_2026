@@ -6,7 +6,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 07 - (DP-900)](../../../clases/clase-07-dp-900-4121a81b/README.md)
+- [🔖Clase 06 - Microsoft Fabric](../../../clases/clase-06-microsoft-fabric-4121a81b/README.md)
 
 ### Modulo:
 

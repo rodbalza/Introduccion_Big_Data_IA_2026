@@ -6,7 +6,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 08 - (DP-900)](../../../clases/clase-08-dp-900-4121a81b/README.md)
+- [🔖Clase 07 - Power BI](../../../clases/clase-07-power-bi-4121a81b/README.md)
 
 ### Modulo:
 
