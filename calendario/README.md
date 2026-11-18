@@ -28,5 +28,3 @@
 | **28** | **29** | **30** | **31** |  |  |  |
 
 ![Imagen](assets/asset-001.png)
-
-![Imagen](assets/asset-002.png)
