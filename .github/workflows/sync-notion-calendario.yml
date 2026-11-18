@@ -41,6 +41,7 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
+          NOTION_CLASES_ID: ${{ vars.NOTION_CLASES_ID }}
           PUBLICAR: ${{ inputs.publicar }}
           REGENERAR_TODO: ${{ inputs.regenerar_todo }}
         run: |
