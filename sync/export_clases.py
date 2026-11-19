@@ -340,6 +340,13 @@ def main():
             name = manifest[pid]
             folder = stage / name
             folder.mkdir()
+            # Al renombrar el título en Notion cambia el slug de la carpeta.
+            # Trasladar también los recursos subidos manualmente en GitHub.
+            old_name = old_pages.get(pid)
+            if old_name and old_name != name:
+                previous = OUT / old_name / "material complementario"
+                if previous.is_dir():
+                    shutil.copytree(previous, folder / "material complementario")
             body = Renderer(api, folder).blocks(api.children(pid))
             (folder / "README.md").write_text(f"# {title}\n\n{body}\n", encoding="utf-8")
 
