@@ -311,11 +311,8 @@ def main():
         previous_readme = (OUT / name / "README.md")
         html_migration = (
             exists
-            and bool(re.search(
-                r"https://prod-files-secure\\.s3\\.[^\\s<>)]*\\.html?\\?X-Amz-",
-                previous_readme.read_text(encoding="utf-8"),
-                re.IGNORECASE,
-            ))
+            and "prod-files-secure.s3." in previous_readme.read_text(encoding="utf-8")
+            and ".html?X-Amz-" in previous_readme.read_text(encoding="utf-8")
         )
         updated = (args.force or html_migration or old_signatures.get(pid) != sig
                    or old_pages.get(pid) != name or not exists)
