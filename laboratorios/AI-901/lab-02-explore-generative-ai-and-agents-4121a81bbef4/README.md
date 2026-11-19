@@ -5,7 +5,6 @@
 ## Clases relacionadas
 
 - [🔖Clase 08 - Introducción a la IA](../../../clases/clase-08-introduccion-a-la-ia-4121a81b/README.md)
-- [🔖Clase 14 - (AI-901) Labs 13 y 14](../../../clases/clase-14-ai-901-labs-13-y-14-4131a81b/README.md)
 
 ### Modulo:
 
