@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fundamentos de IA e IA generativa</title>
+<style>
+:root{--dk:#1A1B3A;--dk2:#3A3D6B;--lt:#F2F3FA;--w:#fff;--a1:#5B4BDB;--a2:#12A89D;--a3:#F2A541;--a4:#E5566E;--a5:#8A93B8;--a6:#3FA7F0;--mut:#3A3D6B}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;font-family:Calibri,"Segoe UI",Arial,sans-serif;color:var(--dk)}
+#app{width:100%;max-width:1280px;margin:0 auto}
+#viewport{position:relative;width:100%;overflow:hidden;border-radius:10px;box-shadow:0 2px 12px rgba(26,27,58,.15)}
+#stage{width:1280px;height:720px;transform-origin:0 0;position:absolute;top:0;left:0}
+.slide{position:absolute;inset:0;background:var(--lt);padding:40px 60px 50px;display:none;flex-direction:column}
+.slide.on{display:flex}
+.slide.dark{background:var(--dk);color:var(--w);justify-content:center}
+h1{font-size:36px;font-weight:700;margin-bottom:14px}
+.dark h1{font-size:46px}
+.sub{font-size:20px;color:var(--a5);margin-top:10px;max-width:1100px}
+.lead{font-size:19px;color:var(--mut);margin-bottom:18px;line-height:1.35}
+.foot{position:absolute;bottom:16px;left:60px;right:60px;font-size:11px;color:var(--a5);display:flex;justify-content:space-between}
+.dark .foot{display:none}
+.g{display:grid;gap:22px;flex:1;min-height:0}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}.c5{grid-template-columns:repeat(5,1fr)}
+.card{background:var(--w);border-radius:10px;padding:20px 22px;box-shadow:0 2px 8px rgba(26,27,58,.10);display:flex;flex-direction:column}
+.tint{background:var(--lt);border-radius:8px;padding:10px 12px}
+.ic{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;color:#fff}
+.ic.big{width:66px;height:66px;font-size:32px}
+.h{font-size:21px;font-weight:700;margin:12px 0 6px}
+.row{display:flex;align-items:center;gap:14px}
+.row .h{margin:0}
+.t{font-size:17px;color:var(--mut);line-height:1.35}
+ul.b{padding-left:22px;font-size:17px;line-height:1.4}
+ul.b li{margin-bottom:6px}
+.bg1{background:var(--a1)}.bg2{background:var(--a2)}.bg3{background:var(--a3)}.bg4{background:var(--a4)}.bg5{background:var(--a5)}.bg6{background:var(--a6)}.bgd{background:var(--dk2)}
+.f1{color:var(--a1)}.f2{color:var(--a2)}.f3{color:var(--a3)}.f4{color:var(--a4)}.f6{color:var(--a6)}
+.solid{border-radius:10px;padding:20px 24px;color:#fff}
+.solid .t,.solid ul{color:#fff}
+.flow{display:flex;align-items:stretch;gap:10px}
+.flow>.card,.flow>.solid{flex:1}
+.arr{align-self:center;color:var(--a5);font-size:28px;flex:none}
+.chip{display:inline-block;background:var(--w);border-radius:8px;padding:7px 14px;font-size:13px;color:var(--mut);margin:0 8px 8px 0}
+table{width:100%;border-collapse:collapse;background:var(--w);font-size:17px}
+th{background:var(--dk);color:#fff;text-align:left;padding:11px 14px}
+td{padding:20px 16px;border-top:2px solid var(--lt);vertical-align:middle}
+.mono{font-family:"Courier New",monospace}
+.num{font-size:42px;font-weight:700;line-height:1}
+.stat{font-size:64px;font-weight:700;line-height:1}
+.small{font-size:12px;font-style:italic;color:var(--mut)}
+.tok{display:flex;justify-content:space-between;border-radius:8px;padding:14px 16px;font-weight:700;font-size:18px;background:var(--a1);color:#fff}
+.tok.rep{background:var(--lt);color:var(--mut)}
+.bar{height:34px;background:var(--a2);border-radius:0 4px 4px 0}
+.keys li{list-style:none;display:flex;align-items:center;gap:18px;font-size:20px;margin-bottom:18px}
+#nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px;font-size:14px;color:var(--dk2)}
+#nav button{border:0;background:var(--a1);color:#fff;border-radius:6px;padding:7px 16px;font-size:14px;cursor:pointer;font-family:inherit}
+#nav button:disabled{background:var(--a5);cursor:default}
+#nav .mid{display:flex;align-items:center;gap:10px;flex:1;justify-content:center}
+#nav select{font-family:inherit;font-size:14px;padding:5px 8px;border-radius:6px;border:1px solid #ccd;max-width:340px}
+#prog{height:4px;background:#dfe1ef;border-radius:2px;overflow:hidden;margin-top:6px}
+#prog div{height:100%;background:var(--a2);width:0;transition:width .2s}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="viewport"><div id="stage">
+
+<!-- 1 -->
+<section class="slide dark" data-t="Portada">
+  <div class="ic big bg1">🧠</div>
+  <h1 style="margin-top:40px">Fundamentos de IA e IA generativa</h1>
+  <p class="sub">Conceptos clave, cargas de trabajo, LLM, prompts y agentes</p>
+  <p class="small" style="color:var(--a5);position:absolute;bottom:50px">Basado en los módulos de Microsoft Learn «Introducción a los conceptos de IA» e «Introducción a la IA generativa y los agentes»</p>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-t="Hoja de ruta">
+  <h1>Hoja de ruta de la sesión</h1>
+  <div class="g c2">
+    <div class="card"><div class="row"><div class="ic big bg1">💡</div><div class="h" style="font-size:24px">Parte 1 · Conceptos de IA</div></div>
+      <ul class="b" style="font-size:19px;margin-top:22px"><li>IA generativa y agentes</li><li>Texto y lenguaje natural</li><li>Voz</li><li>Visión artificial</li><li>Extracción de información</li><li>IA responsable</li></ul></div>
+    <div class="card"><div class="row"><div class="ic big bg2">🤖</div><div class="h" style="font-size:24px">Parte 2 · IA generativa en profundidad</div></div>
+      <ul class="b" style="font-size:19px;margin-top:22px"><li>Modelos de lenguaje grandes (LLM)</li><li>Tokenización, transformers y embeddings</li><li>Predicción de respuestas (completions)</li><li>Prompts, historial y RAG</li><li>Agentes y sistemas multiagente</li></ul></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide dark" data-t="Parte 1 · Conceptos de IA">
+  <div class="ic big bg1">💡</div>
+  <h1 style="margin-top:30px">Parte 1 · Conceptos de IA</h1>
+  <p class="sub">Qué tipo de soluciones hace posibles la IA y cómo construirlas de forma responsable</p>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-t="Las grandes cargas de trabajo de la IA">
+  <h1>Las grandes cargas de trabajo de la IA</h1>
+  <div class="g c3" style="grid-template-rows:1fr 1fr">
+    <div class="card"><div class="ic bg1">🤖</div><div class="h">IA generativa y agentes</div><div class="t">Crea contenido nuevo y automatiza tareas usando herramientas</div></div>
+    <div class="card"><div class="ic bg2">💬</div><div class="h">Texto y lenguaje natural</div><div class="t">Analiza, clasifica, extrae y resume texto</div></div>
+    <div class="card"><div class="ic bg3">🎙️</div><div class="h">Voz</div><div class="t">Reconoce lenguaje hablado y lo sintetiza</div></div>
+    <div class="card"><div class="ic bg4">👁️</div><div class="h">Visión artificial</div><div class="t">Interpreta fotografías, vídeo y cámaras en directo</div></div>
+    <div class="card"><div class="ic bg6">🧾</div><div class="h">Extracción de información</div><div class="t">Obtiene datos de documentos, formularios y grabaciones</div></div>
+    <div class="card"><div class="ic bgd">⚖️</div><div class="h">IA responsable</div><div class="t">Principios y salvaguardas para reducir riesgos</div></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-t="IA generativa: cómo funciona">
+  <h1>IA generativa: cómo funciona</h1>
+  <p class="lead">Rama de la IA que permite a las aplicaciones generar contenido nuevo: diálogos en lenguaje natural, pero también imágenes, vídeo, código y otros formatos.</p>
+  <div class="flow" style="margin-bottom:22px">
+    <div class="card"><div class="row"><div class="ic bg1">⌨️</div><div class="h">Prompt</div></div><div class="t" style="margin-top:10px">Pregunta o instrucción en lenguaje natural</div></div>
+    <div class="arr">➜</div>
+    <div class="card"><div class="row"><div class="ic bgd">🧠</div><div class="h">Modelo de lenguaje</div></div><div class="t" style="margin-top:10px">Entrenado con enormes volúmenes de datos; conoce las relaciones semánticas entre palabras</div></div>
+    <div class="arr">➜</div>
+    <div class="card"><div class="row"><div class="ic bg2">💬</div><div class="h">Respuesta generada</div></div><div class="t" style="margin-top:10px">Contenido original y con sentido</div></div>
+  </div>
+  <div class="g c2">
+    <div class="solid bg1"><div class="h" style="margin-top:0">LLM · modelos de lenguaje grandes</div><ul class="b"><li>Más datos y más variables (parámetros)</li><li>Potentes y con buena generalización</li><li>Más costosos de entrenar y utilizar</li></ul></div>
+    <div class="solid bg2"><div class="h" style="margin-top:0">SLM · modelos de lenguaje pequeños</div><ul class="b"><li>Enfocados en áreas temáticas concretas</li><li>Fáciles de desplegar en local</li><li>Ideales para agentes en dispositivos</li></ul></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-t="Agentes de IA: tres elementos clave">
+  <h1>Agentes de IA: tres elementos clave</h1>
+  <p class="lead">Aplicaciones basadas en IA generativa que razonan y generan lenguaje natural, automatizan tareas mediante herramientas y responden al contexto para actuar.</p>
+  <div class="g c3">
+    <div class="card"><div class="ic big bg1">🧠</div><div class="h" style="font-size:23px">Modelo de lenguaje</div><div class="t">El «cerebro» del agente: comprensión del lenguaje y razonamiento.</div></div>
+    <div class="card"><div class="ic big bg3">📋</div><div class="h" style="font-size:23px">Instrucciones</div><div class="t">Prompt del sistema que define el rol y el comportamiento: su «descripción del puesto».</div></div>
+    <div class="card"><div class="ic big bg2">🛠️</div><div class="h" style="font-size:23px">Herramientas</div><div class="t">Lo que usa para interactuar con el mundo:</div>
+      <ul class="b t" style="margin-top:8px"><li><b>Conocimiento:</b> buscadores, bases de datos</li><li><b>Acción:</b> enviar correos, actualizar calendarios, controlar dispositivos</li></ul></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-t="Escenarios de IA generativa y agentes">
+  <h1>Escenarios de IA generativa y agentes</h1>
+  <div class="g c5">
+    <div class="card"><div class="num f1">01</div><div class="h">Chatbots</div><div class="t" style="flex:1">Responden preguntas o mantienen una conversación</div><div class="tint"><div class="small f1" style="font-style:normal;font-weight:700">Ejemplo</div><div style="font-size:14px">Atención al cliente 24/7 de una aseguradora</div></div></div>
+    <div class="card"><div class="num f2">02</div><div class="h">Asistentes de IA</div><div class="t" style="flex:1">Ayudan a las personas automatizando tareas</div><div class="tint"><div class="small f2" style="font-style:normal;font-weight:700">Ejemplo</div><div style="font-size:14px">Gestión de agenda y seguimiento de pedidos</div></div></div>
+    <div class="card"><div class="num f3">03</div><div class="h">Creación de contenido</div><div class="t" style="flex:1">Generan documentos como punto de partida</div><div class="tint"><div class="small f3" style="font-style:normal;font-weight:700">Ejemplo</div><div style="font-size:14px">Borrador de una propuesta comercial</div></div></div>
+    <div class="card"><div class="num f4">04</div><div class="h">Traducción</div><div class="t" style="flex:1">Traducen texto automáticamente entre idiomas</div><div class="tint"><div class="small f4" style="font-style:normal;font-weight:700">Ejemplo</div><div style="font-size:14px">Manuales de producto para nuevos mercados</div></div></div>
+    <div class="card"><div class="num f6">05</div><div class="h">Resumen y explicación</div><div class="t" style="flex:1">Simplifican documentos complejos</div><div class="tint"><div class="small f6" style="font-style:normal;font-weight:700">Ejemplo</div><div style="font-size:14px">Resumen de cláusulas clave de un contrato</div></div></div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-t="Texto y lenguaje natural (PLN)">
+  <h1>Texto y lenguaje natural (PLN)</h1>
+  <p class="lead">El procesamiento de lenguaje natural es la base de los LLM. Las herramientas especializadas de PLN siguen siendo útiles cuando se necesitan resultados predecibles o reglas personalizadas.</p>
+  <div class="g" style="grid-template-columns:1fr 1fr 1.1fr;grid-template-rows:1fr 1fr">
+    <div class="card"><div class="row"><div class="ic bg1">🌐</div><div class="h">Detección de idioma</div></div><div class="t" style="margin-top:10px">Identifica en qué idioma(s) está el texto; suele ser el primer paso del flujo</div></div>
+    <div class="card"><div class="row"><div class="ic bg2">🏷️</div><div class="h">Clasificación de texto</div></div><div class="t" style="margin-top:10px">Asigna categorías, incluido el análisis de sentimiento: positivo, negativo o neutro</div></div>
+    <div class="solid" style="background:var(--dk);grid-row:span 2"><div class="h" style="margin-top:0">Escenarios habituales</div><ul class="b" style="margin-top:10px"><li>Analizar transcripciones de llamadas y reuniones</li><li>Evaluar el sentimiento de reseñas y redes sociales</li><li>Chatbots de preguntas frecuentes con diálogos predecibles</li><li>Ocultar PII antes de compartir datos para cumplir la normativa</li></ul></div>
+    <div class="card"><div class="row"><div class="ic bg3">🔑</div><div class="h">Términos clave y entidades</div></div><div class="t" style="margin-top:10px">Personas, lugares, organizaciones; detección y ocultación de datos personales (PII)</div></div>
+    <div class="card"><div class="row"><div class="ic bg4">🗜️</div><div class="h">Resumen</div></div><div class="t" style="margin-top:10px">Reduce el volumen de texto conservando las ideas principales</div></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-t="Voz: escuchar y hablar">
+  <h1>Voz: escuchar y hablar</h1>
+  <div class="g c2" style="flex:none;margin-bottom:16px">
+    <div class="card"><div class="row"><div class="ic big bg1">🎙️</div><div><div class="h" style="font-size:23px">Reconocimiento de voz</div><div class="f1" style="font-weight:700;font-size:14px">Voz a texto (speech-to-text)</div></div></div>
+      <div class="t" style="margin:16px 0">La IA «oye» e interpreta el habla: la señal de audio se transcribe a texto.</div>
+      <div class="row"><span class="tint" style="font-weight:700;padding:10px 40px">Audio</span><span class="f1" style="font-size:28px">➜</span><span class="solid bg1" style="font-weight:700;padding:10px 40px">Texto</span></div></div>
+    <div class="card"><div class="row"><div class="ic big bg2">🔊</div><div><div class="h" style="font-size:23px">Síntesis de voz</div><div class="f2" style="font-weight:700;font-size:14px">Texto a voz (text-to-speech)</div></div></div>
+      <div class="t" style="margin:16px 0">La IA vocaliza palabras: la información en texto se convierte en una señal audible.</div>
+      <div class="row"><span class="tint" style="font-weight:700;padding:10px 40px">Texto</span><span class="f2" style="font-size:28px">➜</span><span class="solid bg2" style="font-weight:700;padding:10px 40px">Audio</span></div></div>
+  </div>
+  <p class="t" style="font-style:italic;margin-bottom:16px">La tecnología evoluciona rápido: ignorar el ruido de fondo, detectar interrupciones y generar voces cada vez más expresivas y humanas.</p>
+  <div class="g c4" style="flex:none">
+    <div class="card t">Agentes que entienden voz y responden hablando</div><div class="card t">Transcripción automática de llamadas y reuniones</div><div class="card t">Audiodescripción de vídeo o texto</div><div class="card t">Traducción de voz entre idiomas</div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-t="Visión artificial: tipos de modelo">
+  <h1>Visión artificial: tipos de modelo</h1>
+  <p class="lead">Analiza entradas visuales (fotografías, vídeo, cámaras en directo). Se consigue entrenando un modelo con grandes cantidades de imágenes.</p>
+  <div class="g c4">
+    <div class="card"><div class="ic bg1">🖼️</div><div class="h">Clasificación de imágenes</div><div class="t">Entrenado con imágenes etiquetadas; predice qué muestra una imagen nueva</div></div>
+    <div class="card"><div class="ic bg2">🎯</div><div class="h">Detección de objetos</div><div class="t">Identifica la ubicación de objetos concretos dentro de la imagen</div></div>
+    <div class="card"><div class="ic bg3">🧩</div><div class="h">Segmentación semántica</div><div class="t">Identifica los píxeles exactos que pertenecen a cada objeto</div></div>
+    <div class="card"><div class="ic bg4">📚</div><div class="h">Modelos multimodales</div><div class="t">Combinan rasgos visuales y texto para describir imágenes en detalle</div></div>
+  </div>
+  <div style="margin-top:18px"><div style="font-weight:700;font-size:16px;margin-bottom:10px">Escenarios habituales</div>
+    <span class="chip">Agentes que interpretan imágenes</span><span class="chip">Etiquetado y subtítulos de fotos</span><span class="chip">Búsqueda visual</span><span class="chip">Control de stock y cobro en retail</span><span class="chip">Videovigilancia</span><span class="chip">Reconocimiento facial</span><span class="chip">Robótica y vehículos autónomos</span></div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-t="Extracción de información">
+  <h1>Extracción de información</h1>
+  <p class="lead">Encuentra información en fuentes no estructuradas (documentos escaneados, formularios, imágenes, audio y vídeo) y la convierte en datos utilizables.</p>
+  <div class="flow" style="margin-bottom:22px;text-align:center">
+    <div class="card" style="align-items:center"><div class="ic bg5">🧾</div><div class="h">Documento</div><div class="t">Ticket o factura escaneada</div></div><div class="arr">➜</div>
+    <div class="card" style="align-items:center"><div class="ic bg1">🔍</div><div class="h">OCR</div><div class="t">Localiza el texto dentro de la imagen</div></div><div class="arr">➜</div>
+    <div class="card" style="align-items:center"><div class="ic bg3">🧠</div><div class="h">Modelo analítico</div><div class="t">Interpreta cada valor del documento</div></div><div class="arr">➜</div>
+    <div class="card" style="align-items:center"><div class="ic bg2">🗄️</div><div class="h">Campos</div><div class="t">Comercio, fecha e importe en la nota de gastos</div></div>
+  </div>
+  <div class="g c4">
+    <div class="card"><span class="f2" style="font-size:22px">✔</span><div class="t" style="margin-top:6px;color:var(--dk)">Procesar formularios en procesos de negocio (p. ej., notas de gastos)</div></div>
+    <div class="card"><span class="f2" style="font-size:22px">✔</span><div class="t" style="margin-top:6px;color:var(--dk)">Digitalizar a gran escala formularios en papel</div></div>
+    <div class="card"><span class="f2" style="font-size:22px">✔</span><div class="t" style="margin-top:6px;color:var(--dk)">Indexar documentos para búsquedas</div></div>
+    <div class="card"><span class="f2" style="font-size:22px">✔</span><div class="t" style="margin-top:6px;color:var(--dk)">Puntos clave y acciones de reuniones grabadas</div></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-t="IA responsable: seis principios">
+  <h1>IA responsable: seis principios</h1>
+  <p class="lead">Los filtros de contenido mitigan riesgos, pero una solución responsable aplica estos principios desde la concepción hasta el diseño, la implementación y la operación.</p>
+  <div class="g c3" style="grid-template-rows:1fr 1fr">
+    <div class="card"><div class="row"><div class="ic bg1">⚖️</div><div class="h">Equidad</div></div><div class="t" style="margin-top:10px">Minimizar el sesgo en los datos de entrenamiento y probar que el sistema es justo</div></div>
+    <div class="card"><div class="row"><div class="ic bg2">🛡️</div><div class="h">Fiabilidad y seguridad</div></div><div class="t" style="margin-top:10px">La IA es probabilística, no infalible: hay que mitigar los riesgos</div></div>
+    <div class="card"><div class="row"><div class="ic bg3">🔒</div><div class="h">Privacidad y seguridad</div></div><div class="t" style="margin-top:10px">Proteger los datos y evitar que el modelo revele información privada</div></div>
+    <div class="card"><div class="row"><div class="ic bg4">♿</div><div class="h">Inclusión</div></div><div class="t" style="margin-top:10px">Que las soluciones no excluyan a ningún grupo de usuarios</div></div>
+    <div class="card"><div class="row"><div class="ic bg6">ℹ️</div><div class="h">Transparencia</div></div><div class="t" style="margin-top:10px">Explicar cómo funciona el sistema y cuáles son sus limitaciones</div></div>
+    <div class="card"><div class="row"><div class="ic bgd">🏛️</div><div class="h">Responsabilidad</div></div><div class="t" style="margin-top:10px">Quien desarrolla y distribuye la IA responde de ella: marco de gobernanza</div></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-t="IA responsable en la práctica">
+  <h1>IA responsable en la práctica</h1>
+  <table>
+    <tr><th style="width:21%">Principio</th><th style="width:28%">Escenario</th><th>Práctica responsable</th></tr>
+    <tr><td class="f1"><b>Equidad</b></td><td>Sistema de admisiones universitarias</td><td class="t">Probar que evalúa con criterios académicos, sin discriminar por factores demográficos irrelevantes</td></tr>
+    <tr><td class="f2"><b>Fiabilidad y seguridad</b></td><td>Robot con visión artificial</td><td class="t">Actuar solo si la confianza en la identificación del objeto supera un umbral</td></tr>
+    <tr><td class="f3"><b>Privacidad y seguridad</b></td><td>Reconocimiento facial en un aeropuerto</td><td class="t">Borrar las imágenes en cuanto dejen de ser necesarias y restringir quién puede verlas</td></tr>
+    <tr><td class="f4"><b>Inclusión</b></td><td>Agente con interacción por voz</td><td class="t">Generar también subtítulos de texto para personas con discapacidad auditiva</td></tr>
+    <tr><td class="f6"><b>Transparencia</b></td><td>Aprobación de préstamos en un banco</td><td class="t">Informar del uso de IA y describir los datos de entrenamiento sin revelar información confidencial</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section class="slide dark" data-t="Parte 2 · IA generativa y agentes">
+  <div class="ic big bg2">🤖</div>
+  <h1 style="margin-top:30px">Parte 2 · IA generativa y agentes</h1>
+  <p class="sub">No hay magia: técnicas matemáticas de estadística, ciencia de datos y aprendizaje automático refinadas durante años</p>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-t="Un LLM es un texto predictivo muy potente">
+  <h1>Un LLM es un texto predictivo muy potente</h1>
+  <div class="g" style="grid-template-columns:1.3fr 1fr">
+    <div class="card" style="padding:30px 36px">
+      <div class="t" style="font-size:17px">Si solo escuchas el principio…</div>
+      <div style="font-size:44px;margin:14px 0 20px">«<b class="f1">Oí</b> a un <b class="f1">perro</b> …»</div>
+      <div class="t" style="font-size:17px">…sabes que lo más probable es:</div>
+      <div class="solid bg2" style="font-size:34px;font-weight:700;width:240px;text-align:center;margin:14px 0 22px;padding:12px">ladrar</div>
+      <div class="t" style="font-size:16px">«Oí» y «perro» son las pistas que más influyen en la siguiente palabra. Un LLM genera <i>completions</i> a partir de <i>prompts</i> del mismo modo.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-weight:700;font-size:19px">¿Por qué puedes adivinarlo?</div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg1">📖</div><div><div class="h" style="margin:0 0 4px">Vocabulario amplio</div><div class="t">Dispones de muchas palabras entre las que elegir</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg2">🧱</div><div><div class="h" style="margin:0 0 4px">Estructuras lingüísticas</div><div class="t">Sabes cómo se relacionan las palabras en frases con sentido</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg3">💡</div><div><div class="h" style="margin:0 0 4px">Conceptos semánticos</div><div class="t">Algo que se «oye» es un sonido, y los perros emiten sonidos concretos</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-t="Paso 1 · Tokenización">
+  <h1>Paso 1 · Tokenización</h1>
+  <div class="g" style="grid-template-columns:1fr 1.5fr">
+    <div class="t" style="font-size:17px;line-height:1.45">
+      <p style="margin-bottom:16px">Los LLM descomponen su vocabulario en <b>tokens</b>: palabras, subpalabras (como «in» en «increíble» o «improbable»), signos de puntuación y secuencias de caracteres frecuentes.</p>
+      <p>Cada token distinto recibe un <b>identificador entero único</b>. Los LLM actuales manejan vocabularios de cientos de miles de tokens.</p>
+    </div>
+    <div class="card" style="padding:26px 30px">
+      <div class="h" style="margin-top:0;font-size:20px">«Oí a un perro ladrar fuerte a un gato»</div>
+      <div class="g c3" style="flex:none;gap:14px;margin:14px 0 18px">
+        <div class="tok"><span>Oí</span><span>1</span></div><div class="tok"><span>a</span><span>2</span></div><div class="tok"><span>un</span><span>3</span></div>
+        <div class="tok"><span>perro</span><span>4</span></div><div class="tok"><span>ladrar</span><span>5</span></div><div class="tok"><span>fuerte</span><span>6</span></div>
+        <div class="tok rep"><span>a</span><span>2</span></div><div class="tok rep"><span>un</span><span>3</span></div><div class="tok"><span>gato</span><span>7</span></div>
+      </div>
+      <div class="t">Los tokens en gris ya tenían ID asignado y se reutilizan. Con más datos se añaden nuevos tokens: «cachorro», «monopatín», «coche»…</div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-t="Paso 2 · El transformer">
+  <h1>Paso 2 · El transformer</h1>
+  <p class="lead">Cada token recibe un vector (una lista de números). El transformer convierte esos vectores iniciales en <b>embeddings</b> con características lingüísticas y semánticas según los contextos en que aparece el token.</p>
+  <div class="flow" style="flex:1;margin-bottom:20px">
+    <div class="solid bg5"><div class="h" style="margin-top:0">Tokens + posición</div><div class="t">Vectores iniciales aleatorios y codificación posicional (el orden importa)</div></div><div class="arr">➜</div>
+    <div class="solid bg1"><div class="h" style="margin-top:0">Codificador</div><div class="t">Atención multicabeza + red neuronal totalmente conectada</div><div class="t" style="margin-top:14px;font-weight:700;font-style:italic">Crea los embeddings</div></div><div class="arr">➜</div>
+    <div class="solid bgd"><div class="h" style="margin-top:0">Embeddings</div><div class="t">Vectores con el contexto de cada token</div></div><div class="arr">➜</div>
+    <div class="solid bg2"><div class="h" style="margin-top:0">Decodificador</div><div class="t">Atención + red feed-forward</div><div class="t" style="margin-top:14px;font-weight:700;font-style:italic">Predice el siguiente token</div></div>
+  </div>
+  <div class="card row" style="flex-direction:row"><div class="ic big bg4">🎯</div><div style="font-size:16px;line-height:1.4"><b>Atención:</b> examina cada token y pondera cuánto le influyen los tokens que lo rodean. En «Oí a un perro ladrar», «oí» y «perro» pesan más que «a» o «un» para el token «ladrar». La atención multicabeza evalúa varios elementos del vector en paralelo.</div></div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-t="Paso 3 · Embeddings y similitud semántica">
+  <h1>Paso 3 · Embeddings y similitud semántica</h1>
+  <div class="g" style="grid-template-columns:1fr 1.15fr">
+    <div>
+      <table style="font-size:17px">
+        <tr><th>Token</th><th>Embedding (3 dimensiones)</th></tr>
+        <tr><td class="f1"><b>perro</b></td><td class="mono">[10, 3, 2]</td></tr>
+        <tr><td class="f1"><b>cachorro</b></td><td class="mono">[5, 3, 2]</td></tr>
+        <tr><td class="f1"><b>gato</b></td><td class="mono">[10, 3, 1]</td></tr>
+        <tr><td class="f3"><b>ladrar</b></td><td class="mono">[9, 2, 10]</td></tr>
+        <tr><td class="f4"><b>coche</b></td><td class="mono">[-2, -2, 1]</td></tr>
+        <tr><td class="f4"><b>monopatín</b></td><td class="mono">[-3, -2, 2]</td></tr>
+      </table>
+      <p class="small" style="margin-top:10px">Valores ilustrativos: los embeddings reales tienen miles de dimensiones.</p>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <p class="lead">Los tokens que aparecen en contextos parecidos tienen vectores que apuntan en direcciones similares. La cercanía se mide con la <b>similitud del coseno</b>.</p>
+      <div class="g c2" style="flex:1">
+        <div class="card" style="justify-content:center"><div class="stat f1">0,96</div><div class="h">perro ↔ cachorro</div><div class="t">Significado muy próximo</div></div>
+        <div class="card" style="justify-content:center"><div class="stat f4">−0,75</div><div class="h">perro ↔ coche</div><div class="t">Contextos muy distintos</div></div>
+      </div>
+      <p class="small" style="margin-top:10px">Similitud del coseno calculada con los vectores de la tabla (1 = misma dirección, −1 = opuesta)</p>
+    </div>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-t="Paso 4 · Predecir la respuesta token a token">
+  <h1>Paso 4 · Predecir la respuesta token a token</h1>
+  <div class="g c2">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card row" style="flex-direction:row;flex:1;align-items:flex-start"><div class="num f1" style="width:40px">1</div><div><div class="h" style="margin:0 0 4px">Entrenamiento con atención enmascarada</div><div class="t">Solo se tienen en cuenta los tokens anteriores. Como se conoce el siguiente token real, el modelo compara su predicción y ajusta los pesos para reducir el error.</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1;align-items:flex-start"><div class="num f2" style="width:40px">2</div><div><div class="h" style="margin:0 0 4px">Inferencia</div><div class="t">Las capas de atención calculan vectores candidatos y la red feed-forward elige el más probable.</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1;align-items:flex-start"><div class="num f3" style="width:40px">3</div><div><div class="h" style="margin:0 0 4px">Repetición</div><div class="t">El token predicho se añade a la secuencia y el proceso se repite hasta que el decodificador predice el final.</div></div></div>
+    </div>
+    <div class="card" style="padding:26px 30px">
+      <div class="h" style="margin-top:0;font-size:22px">«Cuando mi perro era un …»</div>
+      <div style="display:grid;grid-template-columns:110px 1fr;gap:26px 14px;align-items:center;margin:40px 0;font-size:16px">
+        <span style="text-align:right">cachorro</span><div class="row"><div class="bar" style="width:82%"></div><b>82 %</b></div>
+        <span style="text-align:right">gato</span><div class="row"><div class="bar" style="width:7%"></div><b>7 %</b></div>
+        <span style="text-align:right">monopatín</span><div class="row"><div class="bar" style="width:1.5%"></div><b>1 %</b></div>
+      </div>
+      <p class="small" style="margin-top:auto">Probabilidades ilustrativas del siguiente token</p>
+    </div>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-t="Prompts: sistema y usuario">
+  <h1>Prompts: sistema y usuario</h1>
+  <p class="lead">Un prompt es la entrada que damos al LLM; el modelo responde con una <i>completion</i>. El modelo responde al prompt de usuario respetando las pautas del prompt del sistema.</p>
+  <div class="g c2">
+    <div class="card"><div class="row"><div class="ic big bg3">⚙️</div><div class="h" style="font-size:23px">Prompt del sistema</div></div>
+      <div class="t" style="margin:16px 0;flex:1">Define el comportamiento, el tono y las restricciones del modelo. Normalmente lo fija la aplicación.</div>
+      <div class="tint" style="padding:16px"><div class="f3" style="font-weight:700;font-size:13px">Ejemplo</div><div style="font-style:italic;font-size:16px">«Eres un asistente útil que responde de forma alegre y cercana.»</div></div></div>
+    <div class="card"><div class="row"><div class="ic big bg1">👤</div><div class="h" style="font-size:23px">Prompt de usuario</div></div>
+      <div class="t" style="margin:16px 0;flex:1">Pide una respuesta a una pregunta o instrucción concreta. Lo escribe la persona o lo genera la aplicación.</div>
+      <div class="tint" style="padding:16px"><div class="f1" style="font-weight:700;font-size:13px">Ejemplo</div><div style="font-style:italic;font-size:16px">«Resume las consideraciones clave para adoptar IA generativa del documento adjunto para un directivo. Máximo seis viñetas, tono profesional.»</div></div></div>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-t="Historial de conversación y RAG">
+  <h1>Más contexto: historial de conversación y RAG</h1>
+  <div class="g" style="grid-template-columns:1fr 1.4fr">
+    <div class="card"><div class="row"><div class="ic bg3">🕘</div><div class="h">Historial de conversación</div></div>
+      <div class="t" style="margin:14px 0">La aplicación guarda la conversación e incluye versiones resumidas en los siguientes prompts para mantener el contexto.</div>
+      <div class="tint" style="font-size:14px;width:85%;margin-top:auto">Claves para adoptar IA generativa: gobernanza, casos de uso de alto valor, riesgos de privacidad…</div>
+      <div class="solid bg1" style="font-size:14px;width:85%;margin:12px 0 0 auto;padding:10px 12px">¿Cuáles son los riesgos de privacidad más comunes?</div></div>
+    <div class="card"><div class="row"><div class="ic bg2">🗄️</div><div class="h">Generación aumentada por recuperación (RAG)</div></div>
+      <div class="t" style="margin:14px 0 18px">Se recupera información relevante (documentos, correos) y se añade al prompt: la respuesta queda <b>fundamentada</b> en esos datos.</div>
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:12px 16px;align-items:center;font-size:15px">
+        <span class="solid bg5" style="padding:9px;text-align:center;font-weight:700">Pregunta</span><span>«¿Cuánto puedo cobrar de dietas en un viaje de trabajo?»</span>
+        <span class="solid bg2" style="padding:9px;text-align:center;font-weight:700">Recuperar</span><span>Secciones sobre viajes de la política de gastos</span>
+        <span class="solid bg3" style="padding:9px;text-align:center;font-weight:700">Aumentar</span><span>Prompt = pregunta + extractos recuperados</span>
+        <span class="solid bg1" style="padding:9px;text-align:center;font-weight:700">Responder</span><span>Respuesta concreta y fundamentada</span>
+      </div></div>
+  </div>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-t="Cómo escribir mejores prompts">
+  <h1>Cómo escribir mejores prompts</h1>
+  <div class="g" style="grid-template-columns:1fr 1.2fr">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg1">🎯</div><div><div class="h" style="margin:0 0 2px">Claro y específico</div><div class="t">Instrucciones explícitas mejor que lenguaje vago</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg2">ℹ️</div><div><div class="h" style="margin:0 0 2px">Contexto</div><div class="t">Indica el tema, la audiencia o el formato</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg3">💡</div><div><div class="h" style="margin:0 0 2px">Ejemplos</div><div class="t">Muestra el estilo que buscas</div></div></div>
+      <div class="card row" style="flex-direction:row;flex:1"><div class="ic bg4">📝</div><div><div class="h" style="margin:0 0 2px">Estructura</div><div class="t">Pide viñetas, tablas o listas numeradas</div></div></div>
+    </div>
+    <div class="solid" style="background:var(--dk);display:flex;flex-direction:column">
+      <div class="row" style="justify-content:space-between"><div class="h" style="margin:0">Prompt listo para copiar</div><button id="copyBtn" style="border:0;background:var(--a2);color:#fff;border-radius:6px;padding:6px 14px;font-family:inherit;font-size:13px;cursor:pointer">Copiar</button></div>
+      <div id="promptTxt" class="mono" style="font-size:16px;line-height:1.5;margin-top:18px;flex:1"><span style="color:var(--a3)">Actúa como analista financiero.</span> Resume el informe trimestral adjunto para el comité de dirección de una cadena de supermercados, centrándote en ventas, márgenes y riesgos. <span style="color:var(--a6)">Usa un tono profesional y entrega una tabla con tres columnas: indicador, valor y comentario.</span> <span style="color:var(--a2)">Ejemplo de comentario: «Margen bruto estable pese al aumento de costes logísticos».</span></div>
+      <div class="row" style="font-size:13px;gap:22px"><span><span style="color:var(--a3)">●</span> Contexto</span><span>● Tarea</span><span><span style="color:var(--a6)">●</span> Estructura</span><span><span style="color:var(--a2)">●</span> Ejemplo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-t="Sistemas multiagente">
+  <h1>Sistemas multiagente</h1>
+  <p class="lead">En lugar de que un agente lo haga todo, varios agentes especializados colaboran como un equipo humano. Se comunican mediante prompts y usan IA generativa para decidir qué tareas hacen falta y quién las asume.</p>
+  <div class="flow" style="flex:1;margin-bottom:18px;text-align:center">
+    <div class="card" style="align-items:center"><div class="ic big bg1">🔍</div><div class="h">Agente de recopilación</div><div class="f1" style="font-weight:700">Reúne los datos</div><div class="tint t" style="margin-top:auto;width:100%;color:var(--dk)">Lee las incidencias recibidas de clientes</div></div><div class="arr">➜</div>
+    <div class="card" style="align-items:center"><div class="ic big bg3">📈</div><div class="h">Agente de análisis</div><div class="f3" style="font-weight:700">Los analiza</div><div class="tint t" style="margin-top:auto;width:100%;color:var(--dk)">Clasifica por urgencia y detecta patrones</div></div><div class="arr">➜</div>
+    <div class="card" style="align-items:center"><div class="ic big bg2">⚡</div><div class="h">Agente de acción</div><div class="f2" style="font-weight:700">Actúa</div><div class="tint t" style="margin-top:auto;width:100%;color:var(--dk)">Abre tickets y avisa al equipo responsable</div></div>
+  </div>
+  <div class="card" style="font-size:15px;padding:14px 22px"><div><b>Ejemplo de empresa:</b> gestión de incidencias de clientes. La IA agéntica es el siguiente gran avance en cómo buscamos información y trabajamos.</div></div>
+</section>
+
+<!-- 24 -->
+<section class="slide dark" data-t="Ideas clave" style="justify-content:flex-start;padding-top:50px">
+  <h1 style="margin-bottom:34px">Ideas clave</h1>
+  <ul class="keys">
+    <li><div class="ic bg1">🧩</div>La IA abarca varias cargas de trabajo: generativa, lenguaje, voz, visión y extracción</li>
+    <li><div class="ic bg2">⚖️</div>La IA responsable se aplica durante todo el ciclo de vida, con seis principios</li>
+    <li><div class="ic bg3">🧠</div>Un LLM predice el siguiente token usando tokens, embeddings y atención</li>
+    <li><div class="ic bg4">⌨️</div>Prompts claros, con contexto, ejemplos y estructura dan mejores resultados</li>
+    <li><div class="ic bg6">🤖</div>Un agente = modelo + instrucciones + herramientas; varios agentes pueden colaborar</li>
+  </ul>
+  <p style="font-style:italic;color:var(--a5);font-size:17px;margin-top:auto">Practica en Microsoft Learn: ejercicios «Explore AI workloads» y «Explore generative AI»</p>
+</section>
+
+</div></div>
+<div id="prog"><div></div></div>
+<div id="nav">
+  <button id="prev">◀ Anterior</button>
+  <div class="mid"><select id="jump" aria-label="Ir a diapositiva"></select><span id="cnt"></span></div>
+  <button id="next">Siguiente ▶</button>
+</div>
+</div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var stage=document.getElementById('stage'),vp=document.getElementById('viewport');
+  var jump=document.getElementById('jump'),cnt=document.getElementById('cnt'),bar=document.querySelector('#prog div');
+  var i=0;
+  slides.forEach(function(s,k){
+    var o=document.createElement('option');o.value=k;o.textContent=(k+1)+'. '+s.getAttribute('data-t');jump.appendChild(o);
+    if(!s.classList.contains('dark')){var f=document.createElement('div');f.className='foot';f.innerHTML='<span>Fundamentos de IA e IA generativa · Microsoft Learn</span><span>'+(k+1)+'</span>';s.appendChild(f);}
+  });
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+    jump.value=i;cnt.textContent=(i+1)+' / '+slides.length;bar.style.width=((i+1)/slides.length*100)+'%';
+    document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;}
+  function fit(){var w=vp.clientWidth;var sc=w/1280;stage.style.transform='scale('+sc+')';vp.style.height=(720*sc)+'px';}
+  document.getElementById('prev').onclick=function(){show(i-1)};
+  document.getElementById('next').onclick=function(){show(i+1)};
+  jump.onchange=function(){show(+jump.value)};
+  document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();show(i+1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1)}});
+  vp.addEventListener('click',function(e){if(e.target.closest('button'))return;var r=vp.getBoundingClientRect();show(e.clientX-r.left>r.width/2?i+1:i-1)});
+  var cb=document.getElementById('copyBtn');
+  cb.onclick=function(e){e.stopPropagation();var t=document.getElementById('promptTxt').innerText;
+    function ok(){cb.textContent='¡Copiado!';setTimeout(function(){cb.textContent='Copiar'},1500)}
+    try{navigator.clipboard.writeText(t).then(ok,fallback)}catch(err){fallback()}
+    function fallback(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok()}catch(x){}document.body.removeChild(ta)}};
+  window.addEventListener('resize',fit);fit();show(0);
+})();
+</script>
+</body>
+</html>
