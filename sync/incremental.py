@@ -42,7 +42,13 @@ def remove_folder(root, relative):
 
 
 def replace_folder(staged, target):
+    # Conservar material complementario subido directamente a GitHub.
+    # Los archivos de esta carpeta no forman parte de la exportación de Notion.
     if target.exists():
+        complementary = target / "material complementario"
+        destination = staged / "material complementario"
+        if complementary.is_dir() and not destination.exists():
+            shutil.copytree(complementary, destination)
         shutil.rmtree(target)
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(staged, target)
