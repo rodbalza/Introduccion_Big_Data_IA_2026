@@ -4,8 +4,8 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 09 - (AI-901) Labs 1 y 2](../../../clases/clase-09-ai-901-labs-1-y-2-4121a81b/README.md)
-- [🔖Clase 15 - (AI-901) Labs 13 y 14](../../../clases/clase-15-ai-901-labs-13-y-14-4131a81b/README.md)
+- [🔖Clase 08 - (AI-901) Labs 1 y 2](../../../clases/clase-08-ai-901-labs-1-y-2-4121a81b/README.md)
+- [🔖Clase 14 - (AI-901) Labs 13 y 14](../../../clases/clase-14-ai-901-labs-13-y-14-4131a81b/README.md)
 
 ### Modulo:
 
