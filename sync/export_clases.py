@@ -275,7 +275,7 @@ def main():
         pid = page["id"]
         title = title_of(page)
         name = slug(title) + "-" + pid.replace("-", "")[:8]
-        sig = page_signature(page, name, "export-clases-v2")
+        sig = page_signature(page, name, "export-clases-v3-html-presentaciones")
         manifest[pid], signatures[pid] = name, sig
         exists = (OUT / name / "README.md").is_file()
         # Estados antiguos sin firmas: se regeneran una sola vez para establecer baseline.
