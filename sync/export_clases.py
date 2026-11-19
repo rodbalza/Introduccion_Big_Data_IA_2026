@@ -133,10 +133,11 @@ class Renderer:
         ext = {
             "image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif",
             "image/webp": ".webp", "image/svg+xml": ".svg", "application/pdf": ".pdf",
+            "text/html": ".html", "application/xhtml+xml": ".html",
         }.get(mime)
         if not ext:
             ext = Path(urlparse(url).path).suffix.lower()
-            if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".pdf", ".txt", ".zip"):
+            if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".pdf", ".txt", ".zip", ".html", ".htm"):
                 ext = ".bin"
         self.image_count += 1
         assets = self.folder / "assets"
@@ -144,6 +145,14 @@ class Renderer:
         filename = f"asset-{self.image_count:03d}{ext}"
         (assets / filename).write_bytes(response.content)
         path = f"assets/{filename}"
+        if ext in (".html", ".htm"):
+            # Las presentaciones HTML se publican desde GitHub Pages.
+            from urllib.parse import quote
+            page_url = (
+                "https://rodbalza.github.io/Introduccion_Big_Data_IA_2026/"
+                + quote("clases/" + self.folder.name + "/" + path, safe="/")
+            )
+            return f"[📽️ {caption}]({page_url})"
         return f"![{caption}]({path})" if inline else f"[{caption}]({path})"
 
     def blocks(self, blocks):
@@ -183,7 +192,22 @@ class Renderer:
                 result = f"[{rich(data.get('caption')) or url}]({url})" if url else ""
             elif kind in ("embed", "link_preview"):
                 url = data.get("url", "")
-                result = f"<{url}>" if url else ""
+                parsed = urlparse(url)
+                # Descarga únicamente HTML subido a Notion desde su almacenamiento firmado.
+                notion_html = (
+                    kind == "embed"
+                    and parsed.scheme == "https"
+                    and (parsed.hostname or "").startswith("prod-files-secure.s3.")
+                    and (parsed.hostname or "").endswith(".amazonaws.com")
+                    and parsed.path.lower().endswith((".html", ".htm"))
+                )
+                if notion_html:
+                    result = self.asset(
+                        {"type": "file", "file": {"url": url}},
+                        rich(data.get("caption")) or "Abrir presentación interactiva",
+                    )
+                else:
+                    result = f"[Abrir recurso incrustado]({url})" if url else ""
             elif kind == "image":
                 result = self.asset(data, rich(data.get("caption")) or "Imagen", inline=True)
             elif kind in ("file", "pdf"):
