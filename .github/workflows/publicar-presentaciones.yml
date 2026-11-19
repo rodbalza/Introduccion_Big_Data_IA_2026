@@ -7,6 +7,12 @@ on:
       - "clases/**"
       - ".github/workflows/publicar-presentaciones.yml"
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Sync Notion - Todo"
+      - "Sync Notion - Clases"
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -19,6 +25,7 @@ concurrency:
 
 jobs:
   desplegar:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -36,6 +43,16 @@ jobs:
           mkdir -p _site
           touch _site/.nojekyll
           cp -R clases _site/clases
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="es">
+          <head><meta charset="utf-8"><title>Presentaciones del curso</title></head>
+          <body>
+            <h1>Presentaciones del curso Introducción al Big Data e IA</h1>
+            <p>Accede a las presentaciones desde el <a href="https://github.com/rodbalza/Introduccion_Big_Data_IA_2026/tree/main/clases">índice de clases</a>.</p>
+          </body>
+          </html>
+          HTML
 
       - name: Subir artefacto a Pages
         uses: actions/upload-pages-artifact@v3
