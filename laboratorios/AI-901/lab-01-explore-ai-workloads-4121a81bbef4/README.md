@@ -4,7 +4,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 08 - (AI-901) Labs 1 y 2](../../../clases/clase-08-ai-901-labs-1-y-2-4121a81b/README.md)
+- [🔖Clase 08 - Introducción a la IA](../../../clases/clase-08-introduccion-a-la-ia-4121a81b/README.md)
 
 ### Modulo:
 

@@ -9,7 +9,7 @@ Apuntes publicados desde Notion, organizados cronológicamente.
 | 2026-11-16 | [🔖Clase 05 - Explore Azure Cosmos DB](clase-05-explore-azure-cosmos-db-4121a81b/README.md) |
 | 2026-11-17 | [🔖Clase 06 - Microsoft Fabric](clase-06-microsoft-fabric-4121a81b/README.md) |
 | 2026-11-18 | [🔖Clase 07 - Power BI](clase-07-power-bi-4121a81b/README.md) |
-| 2026-11-19 | [🔖Clase 08 - (AI-901) Labs 1 y 2](clase-08-ai-901-labs-1-y-2-4121a81b/README.md) |
+| 2026-11-19 | [🔖Clase 08 - Introducción a la IA](clase-08-introduccion-a-la-ia-4121a81b/README.md) |
 | 2026-11-23 | [🔖Clase 09 - (AI-901) Labs 3 y 4](clase-09-ai-901-labs-3-y-4-4121a81b/README.md) |
 | 2026-11-24 | [🔖Clase 10 - (AI-901) Labs 5 y 6](clase-10-ai-901-labs-5-y-6-4121a81b/README.md) |
 | 2026-11-25 | [🔖Clase 11 - (AI-901) Labs 7 y 8](clase-11-ai-901-labs-7-y-8-4121a81b/README.md) |
