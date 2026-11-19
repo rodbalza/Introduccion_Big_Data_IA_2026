@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import time
 import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
@@ -125,8 +126,34 @@ class Renderer:
         if kind == "external":
             return f"![{caption}]({url})" if inline else f"[{caption}]({url})"
         # Los enlaces firmados de Notion caducan; siempre descargar los archivos.
-        response = requests.get(url, timeout=90)
-        response.raise_for_status()
+        # Algunas descargas de archivos de Notion/S3 se interrumpen durante
+        # el handshake TLS. Reintentamos errores transitorios sin publicar
+        # contenido incompleto. Cada intento crea una conexión independiente.
+        response = None
+        for attempt in range(5):
+            try:
+                response = requests.get(url, timeout=(20, 90))
+                if response.status_code in (429, 500, 502, 503, 504):
+                    response.raise_for_status()
+                response.raise_for_status()
+                break
+            except (requests.exceptions.ConnectionError,
+                    requests.exceptions.Timeout) as exc:
+                if attempt == 4:
+                    raise RuntimeError(
+                        f"No se pudo descargar un recurso de Notion tras 5 intentos: "
+                        f"{urlparse(url).path}"
+                    ) from exc
+                delay = min(2 ** attempt, 12)
+                print(f"  [REINTENTO] Recurso de Notion (conexión): {attempt + 2}/5, en {delay}s", flush=True)
+                time.sleep(delay)
+            except requests.exceptions.HTTPError as exc:
+                if attempt == 4 or response.status_code not in (429, 500, 502, 503, 504):
+                    raise
+                delay = min(2 ** attempt, 12)
+                print(f"  [REINTENTO] Recurso de Notion (HTTP {response.status_code}): "
+                      f"{attempt + 2}/5, en {delay}s", flush=True)
+                time.sleep(delay)
         if len(response.content) > 25 * 1024 * 1024:
             raise RuntimeError("Archivo de Notion superior a 25 MB; requiere revisión")
         mime = response.headers.get("Content-Type", "").split(";")[0].lower()
@@ -275,11 +302,23 @@ def main():
         pid = page["id"]
         title = title_of(page)
         name = slug(title) + "-" + pid.replace("-", "")[:8]
-        sig = page_signature(page, name, "export-clases-v3-html-presentaciones")
+        sig = page_signature(page, name, "export-clases-v2")
         manifest[pid], signatures[pid] = name, sig
         exists = (OUT / name / "README.md").is_file()
         # Estados antiguos sin firmas: se regeneran una sola vez para establecer baseline.
-        updated = args.force or old_signatures.get(pid) != sig or old_pages.get(pid) != name or not exists
+        # Migrar únicamente páginas que todavía incluyen URLs HTML firmadas,
+        # sin obligar a descargar de nuevo todas las imágenes del curso.
+        previous_readme = (OUT / name / "README.md")
+        html_migration = (
+            exists
+            and bool(re.search(
+                r"https://prod-files-secure\\.s3\\.[^\\s<>)]*\\.html?\\?X-Amz-",
+                previous_readme.read_text(encoding="utf-8"),
+                re.IGNORECASE,
+            ))
+        )
+        updated = (args.force or html_migration or old_signatures.get(pid) != sig
+                   or old_pages.get(pid) != name or not exists)
         if updated:
             changes.append(page)
         status = "ACTUALIZAR" if updated else "SIN CAMBIOS"
