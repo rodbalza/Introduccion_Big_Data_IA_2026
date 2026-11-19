@@ -6,11 +6,21 @@ on:
     - cron: '7,37 * * * *'
   workflow_dispatch:
     inputs:
+      seccion:
+        description: "Apartado que se sincronizara"
+        type: choice
+        options:
+          - todo
+          - clases
+          - laboratorios
+          - calendario
+        default: todo
+        required: true
       publicar:
         description: "Publicar Clases, Laboratorios y Calendario (desmarcado = previsualizacion)"
         required: true
         type: boolean
-        default: false
+        default: true
       regenerar_todo:
         description: "Forzar regeneracion completa aunque no haya cambios"
         required: false
@@ -35,6 +45,7 @@ jobs:
       NOTION_CALENDARIO_ID: ${{ vars.NOTION_CALENDARIO_ID }}
       PUBLICAR: ${{ github.event_name == 'schedule' || inputs.publicar }}
       REGENERAR_TODO: ${{ inputs.regenerar_todo }}
+      SECCION: ${{ github.event_name == 'schedule' && 'todo' || inputs.seccion }}
 
     steps:
       - name: Obtener repositorio
@@ -54,12 +65,20 @@ jobs:
         shell: bash
         run: |
           test -n "$NOTION_TOKEN" || { echo "::error::Falta NOTION_TOKEN"; exit 1; }
-          for variable in NOTION_CLASES_ID NOTION_LABS_ID NOTION_CALENDARIO_ID; do
+          case "$SECCION" in
+            todo) variables="NOTION_CLASES_ID NOTION_LABS_ID NOTION_CALENDARIO_ID" ;;
+            clases) variables="NOTION_CLASES_ID" ;;
+            laboratorios) variables="NOTION_LABS_ID NOTION_CLASES_ID" ;;
+            calendario) variables="NOTION_CALENDARIO_ID NOTION_CLASES_ID" ;;
+            *) echo "::error::Seccion no valida: $SECCION"; exit 1 ;;
+          esac
+          for variable in $variables; do
             test -n "${!variable}" || { echo "::error::Falta $variable"; exit 1; }
           done
           echo "Configuración encontrada. Modo: $([ "$PUBLICAR" = "true" ] && echo PUBLICACION || echo PREVISUALIZACION)"
 
       - name: Sincronizar Clases
+        if: ${{ env.SECCION == 'todo' || env.SECCION == 'clases' }}
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
@@ -69,6 +88,7 @@ jobs:
           fi
 
       - name: Sincronizar Laboratorios
+        if: ${{ env.SECCION == 'todo' || env.SECCION == 'laboratorios' }}
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
@@ -78,6 +98,7 @@ jobs:
           fi
 
       - name: Sincronizar Calendario
+        if: ${{ env.SECCION == 'todo' || env.SECCION == 'calendario' }}
         shell: bash
         run: |
           if [ "$PUBLICAR" = "true" ]; then
@@ -104,5 +125,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Sync Notion: clases, laboratorios y calendario"
+          git commit -m "Sync Notion: $SECCION"
           git push
