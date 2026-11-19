@@ -1,0 +1,47 @@
+name: Publicar presentaciones en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "clases/**"
+      - ".github/workflows/publicar-presentaciones.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-presentaciones
+  cancel-in-progress: false
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Obtener archivos
+        uses: actions/checkout@v4
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar contenido publicado
+        shell: bash
+        run: |
+          mkdir -p _site
+          touch _site/.nojekyll
+          cp -R clases _site/clases
+
+      - name: Subir artefacto a Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Publicar Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
