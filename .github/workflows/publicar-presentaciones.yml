@@ -10,7 +10,6 @@ on:
   workflow_run:
     workflows:
       - "Sync Notion - Todo"
-      - "Sync Notion - Clases"
     types: [completed]
     branches: [main]
 
