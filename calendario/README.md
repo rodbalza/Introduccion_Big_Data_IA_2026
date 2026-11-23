@@ -14,7 +14,7 @@
 | **2** | **3** | **4** | **5** | **6** | **7** | **8** |
 | **9** | **10**<br>🔖Clase 03 - (DP-900) Data Concepts \| Azure Data Relational | **11**<br>🔖Clase 04 - Explorar Azure Storage para datos no relacionales | **12** | **13** | **14** | **15** |
 | **16**<br>🔖Clase 05 - Explore Azure Cosmos DB | **17**<br>🔖Clase 06 - Microsoft Fabric | **18**<br>🔖Clase 07 - Power BI | **19**<br>🔖Clase 08 - Introducción a la IA | **20** | **21** | **22** |
-| **23**<br>🔖Clase 09 - (AI-901) Labs 3 y 4 | **24**<br>🔖Clase 10 - (AI-901) Labs 5 y 6 | **25**<br>🔖Clase 11 - (AI-901) Labs 7 y 8 | **26**<br>🔖Clase 12 - (AI-901) Labs 9 y 10 | **27** | **28** | **29** |
+| **23**<br>🔖Clase 09 - Text Analytics y AI speech | **24**<br>🔖Clase 10 - (AI-901) Labs 5 y 6 | **25**<br>🔖Clase 11 - (AI-901) Labs 7 y 8 | **26**<br>🔖Clase 12 - (AI-901) Labs 9 y 10 | **27** | **28** | **29** |
 | **30**<br>🔖Clase 13 - (AI-901) Labs 11 y 12 |  |  |  |  |  |  |
 
 ### Diciembre 2026

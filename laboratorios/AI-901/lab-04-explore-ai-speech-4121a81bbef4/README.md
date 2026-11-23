@@ -4,7 +4,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 09 - (AI-901) Labs 3 y 4](../../../clases/clase-09-ai-901-labs-3-y-4-4121a81b/README.md)
+- [🔖Clase 09 - Text Analytics y AI speech](../../../clases/clase-09-text-analytics-y-ai-speech-4121a81b/README.md)
 
 ### Modulo:
 
