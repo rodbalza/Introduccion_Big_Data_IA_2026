@@ -4,7 +4,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 10 - (AI-901) Labs 5 y 6](../../../clases/clase-10-ai-901-labs-5-y-6-4121a81b/README.md)
+- [🔖Clase 10 - Computer vision & Information extraction](../../../clases/clase-10-computer-vision-information-extraction-4121a81b/README.md)
 
 ### Modulo:
 
