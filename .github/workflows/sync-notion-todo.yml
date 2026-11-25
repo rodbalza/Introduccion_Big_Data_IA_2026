@@ -2,8 +2,8 @@ name: Sync Notion - Todo
 
 on:
   schedule:
-    # Cada 30 minutos, desplazado del minuto 0 para reducir retrasos.
-    - cron: '7,37 * * * *'
+    # Cada 8 horas (00:07, 08:07 y 16:07 UTC), fuera del minuto 0.
+    - cron: '7 */8 * * *'
   workflow_dispatch:
     inputs:
       seccion:
