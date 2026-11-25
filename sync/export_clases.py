@@ -270,6 +270,92 @@ class Renderer:
         return "\n".join(lines).strip()
 
 
+
+def preserve_manual(source, destination):
+    """Conservar archivos ajenos a la exportación, incluidos nombres históricos."""
+    if not source.is_dir():
+        return
+    for item in source.iterdir():
+        if item.name in ("README.md", "assets"):
+            continue
+        target = destination / item.name
+        if item.is_dir():
+            shutil.copytree(item, target, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, target)
+
+
+def normalize_material_links(markdown, folder):
+    """Resolver enlaces propios a materiales existentes, incluso con slugs antiguos."""
+    from urllib.parse import quote, unquote
+    prefix = "/rodbalza/Introduccion_Big_Data_IA_2026/"
+    current = re.match(r"(clase-\d+)-", folder.name, re.I)
+    if not current:
+        return markdown
+    roots = [
+        p for p in folder.iterdir()
+        if p.is_dir() and re.match(r"material[ _-]+complementario", p.name, re.I)
+    ]
+
+    def replace(match):
+        label, url = match.groups()
+        parsed = urlparse(url)
+        if parsed.scheme != "https" or parsed.netloc.lower() != "github.com":
+            return match.group(0)
+        path = unquote(parsed.path)
+        if not path.startswith(prefix):
+            return match.group(0)
+        parts = path[len(prefix):].split("/")
+        if len(parts) < 5 or parts[:3] not in (
+            ["blob", "main", "clases"], ["tree", "main", "clases"]
+        ):
+            return match.group(0)
+        linked = re.match(r"(clase-\d+)-", parts[3], re.I)
+        if not linked or linked.group(1).lower() != current.group(1).lower():
+            return match.group(0)
+        if not re.match(r"material[ _-]+complementario", parts[4], re.I):
+            return match.group(0)
+        suffix = parts[4:]
+        if any(p in ("", ".", "..") for p in suffix):
+            return match.group(0)
+        exact = folder.joinpath(*suffix)
+        candidates = [exact] if exact.exists() else []
+        if not candidates:
+            if len(suffix) == 1:
+                candidates = roots
+            else:
+                candidates = [
+                    p for root in roots for p in root.rglob("*")
+                    if p.name == suffix[-1]
+                ]
+        if len(candidates) != 1:
+            print(f"  [AVISO] Enlace de material no resuelto: {url}")
+            return match.group(0)
+        target = candidates[0]
+        relative = "./" + quote(target.relative_to(folder).as_posix(), safe="/")
+        if label.startswith("https://") or " at main · " in label:
+            label = target.name
+        return f"[{label}]({relative}{('#' + parsed.fragment) if parsed.fragment else ''})"
+
+    # No modificar ejemplos de código en bloques delimitados.
+    lines = []
+    fence = None
+    for line in markdown.splitlines(keepends=True):
+        marker = re.match(r"^\s*(" + chr(96) + r"{3,}|~{3,})", line)
+        if marker:
+            token = marker.group(1)
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+            lines.append(line)
+        elif fence is None:
+            lines.append(re.sub(r"\[([^\]\n]+)\]\((https://github\.com/[^)\s]+)\)", replace, line))
+        else:
+            lines.append(line)
+    return "".join(lines)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true", help="Publica las clases en el repositorio público")
@@ -301,7 +387,13 @@ def main():
     for page in pages:
         pid = page["id"]
         title = title_of(page)
-        name = slug(title) + "-" + pid.replace("-", "")[:8]
+        # El ID completo de Notion identifica la página en el estado.
+        # Mantener la ruta ya publicada aunque cambie el título.
+        name = old_pages.get(pid) or (slug(title) + "-" + pid.replace("-", "")[:8])
+        if Path(name).name != name or name in (".", ".."):
+            raise RuntimeError(f"Nombre de carpeta inseguro: {name}")
+        if name in manifest.values():
+            raise RuntimeError(f"Dos clases comparten carpeta: {name}")
         sig = page_signature(page, name, "export-clases-v2")
         manifest[pid], signatures[pid] = name, sig
         exists = (OUT / name / "README.md").is_file()
@@ -340,21 +432,33 @@ def main():
             name = manifest[pid]
             folder = stage / name
             folder.mkdir()
-            # Al renombrar el título en Notion cambia el slug de la carpeta.
-            # Trasladar también los recursos subidos manualmente en GitHub.
-            old_name = old_pages.get(pid)
-            if old_name and old_name != name:
-                previous = OUT / old_name / "material complementario"
-                if previous.is_dir():
-                    shutil.copytree(previous, folder / "material complementario")
+            preserve_manual(OUT / name, folder)
             body = Renderer(api, folder).blocks(api.children(pid))
+            body = normalize_material_links(body, folder)
             (folder / "README.md").write_text(f"# {title}\n\n{body}\n", encoding="utf-8")
 
         for page in changes:
             name = manifest[page["id"]]
             replace_folder(stage / name, OUT / name)
         for folder in set([f for _, f in removed] + moved):
+            # Quitar del índice las páginas eliminadas, pero conservar las
+            # carpetas con material manual para evitar pérdidas irreversibles.
+            existing = OUT / folder
+            if existing.is_dir() and any(
+                p.name not in ("README.md", "assets") for p in existing.iterdir()
+            ):
+                print(f"  [CONSERVAR] Clase retirada con material manual: {folder}")
+                continue
             remove_folder(OUT, folder)
+
+        # Corregir también enlaces existentes sin descargar otra vez los assets.
+        for name in manifest.values():
+            readme = OUT / name / "README.md"
+            if readme.is_file():
+                original = readme.read_text(encoding="utf-8")
+                normalized = normalize_material_links(original, readme.parent)
+                if normalized != original:
+                    readme.write_text(normalized, encoding="utf-8")
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
