@@ -1,5 +1,15 @@
 # 🔖Clase 10 - Computer vision & Information extraction
 
+## Resúmenes PDF
+
+[Acceder a los resúmenes PDF](./material%20complementario/pdf)
+
+## Podcast
+
+[Acceder a los podcasts](./material%20complementario/audio)
+
+---
+
 Responde a cada pregunta con tus propias palabras, en un párrafo de entre 5 y 10 líneas. Siempre que puedas, apoya tu explicación con un ejemplo de un caso de uso empresarial.
 
 > Formato de entrega: pdf, word,  Power Point o vínculo a tu repo de Github. 
