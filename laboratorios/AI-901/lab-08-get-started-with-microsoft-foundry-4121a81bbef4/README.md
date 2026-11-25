@@ -4,7 +4,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 11 - (AI-901) Labs 7 y 8](../../../clases/clase-11-ai-901-labs-7-y-8-4121a81b/README.md)
+- [🔖Clase 11 - RAG y AI-Azure](../../../clases/clase-11-rag-y-ai-azure-4121a81b/README.md)
 
 ### Modulo:
 

@@ -12,7 +12,7 @@ Apuntes publicados desde Notion, organizados cronológicamente.
 | 2026-11-19 | [🔖Clase 08 - Introducción a la IA](clase-08-introduccion-a-la-ia-4121a81b/README.md) |
 | 2026-11-23 | [🔖Clase 09 - Text Analytics y AI speech](clase-09-text-analytics-y-ai-speech-4121a81b/README.md) |
 | 2026-11-24 | [🔖Clase 10 - Computer vision & Information extraction](clase-10-computer-vision-information-extraction-4121a81b/README.md) |
-| 2026-11-25 | [🔖Clase 11 - (AI-901) Labs 7 y 8](clase-11-ai-901-labs-7-y-8-4121a81b/README.md) |
+| 2026-11-25 | [🔖Clase 11 - RAG y AI-Azure](clase-11-rag-y-ai-azure-4121a81b/README.md) |
 | 2026-11-26 | [🔖Clase 12 - (AI-901) Labs 9 y 10](clase-12-ai-901-labs-9-y-10-4121a81b/README.md) |
 | 2026-11-30 | [🔖Clase 13 - (AI-901) Labs 11 y 12](clase-13-ai-901-labs-11-y-12-4131a81b/README.md) |
 | 2026-12-01 | [🔖Clase 14 - (AI-901) Labs 13 y 14](clase-14-ai-901-labs-13-y-14-4131a81b/README.md) |
