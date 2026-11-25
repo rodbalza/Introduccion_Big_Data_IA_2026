@@ -2,11 +2,11 @@
 
 ## Resúmenes PDF
 
-[https://github.com/rodbalza/Introduccion_Big_Data_IA_2026/tree/main/clases/clase-11-ai-901-labs-7-y-8-4121a81b/material%20complementario/pdf](https://github.com/rodbalza/Introduccion_Big_Data_IA_2026/tree/main/clases/clase-11-ai-901-labs-7-y-8-4121a81b/material%20complementario/pdf)
+[Acceder a los resúmenes PDF](./material%20complementario/pdf)
 
 ## Podcast
 
-[https://github.com/rodbalza/Introduccion_Big_Data_IA_2026/tree/main/clases/clase-11-ai-901-labs-7-y-8-4121a81b/material%20complementario/audio](https://github.com/rodbalza/Introduccion_Big_Data_IA_2026/tree/main/clases/clase-11-ai-901-labs-7-y-8-4121a81b/material%20complementario/audio)
+[Acceder a los podcasts](./material%20complementario/audio)
 
 ## Parte 1: RAG
 
