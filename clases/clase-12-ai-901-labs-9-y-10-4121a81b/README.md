@@ -1,3 +1,5 @@
-# 🔖Clase 12 - (AI-901) Labs 9 y 10
+# 🔖Clase 12 - Agentes y análisis de textos
 
+## Resumenes pdf
 
+## Podcast

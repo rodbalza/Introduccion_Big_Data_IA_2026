@@ -4,7 +4,7 @@
 
 ## Clases relacionadas
 
-- [🔖Clase 12 - (AI-901) Labs 9 y 10](../../../clases/clase-12-ai-901-labs-9-y-10-4121a81b/README.md)
+- [🔖Clase 12 - Agentes y análisis de textos](../../../clases/clase-12-ai-901-labs-9-y-10-4121a81b/README.md)
 
 ### Módulo:
 
